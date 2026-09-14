@@ -61,8 +61,7 @@
   --cyan:      #4fb3c9;
 }
 
-/* The two papers share this stylesheet. RadarAD takes a cool signal accent so
-   its page is not mistaken for the RCScoring one: <html data-paper="radarad">. */
+/* Alternate accent, selected with <html data-paper="radarad">. */
 :root[data-paper="radarad"] {
   --accent:      #0d7d94;
   --accent-lo:   #d6edf2;
@@ -278,6 +277,37 @@ figcaption {
   margin-top: .5rem;
   color: var(--ink-3);
   font-size: .82rem;
+}
+
+/* tall site figure: image on one side, notes on the other */
+.site-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, .95fr);
+  gap: 2rem 2.5rem;
+  align-items: start;
+}
+.figure--tall img {
+  max-height: 84vh;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.site-notes p { margin: 0 0 1rem; color: var(--ink-2); font-size: .97rem; }
+.site-notes .credit { color: var(--ink-3); font-size: .82rem; }
+.odd-list { list-style: none; margin: 0 0 1.25rem; padding: 0; display: grid; gap: .55rem; }
+.odd-list li {
+  display: flex; gap: .7rem; align-items: baseline;
+  font-size: .95rem; color: var(--ink-2);
+  padding-bottom: .55rem; border-bottom: 1px solid var(--line-2);
+}
+.odd-key {
+  flex: none;
+  font-family: var(--mono); font-weight: 500; font-size: .78rem;
+  letter-spacing: .04em; color: var(--accent);
+}
+@media (max-width: 820px) {
+  .site-split { grid-template-columns: 1fr; }
+  .figure--tall img { max-height: none; width: 100%; }
 }
 
 /* --- protocol ------------------------------------------------------------ */
