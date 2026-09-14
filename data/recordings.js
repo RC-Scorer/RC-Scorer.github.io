@@ -3,6 +3,9 @@
 //  이 파일만 고치면 페이지 전체가 따라 바뀝니다. HTML 은 건드릴 필요 없습니다.
 // =============================================================================
 //
+//  SCENARIOS 의 image 필드: 해당 시나리오 다이어그램 경로. 비워두면 그림 없이
+//  글자만 나옵니다. (S5 회전, A3 원형교차로는 fig_1.pdf 에 없어서 비어 있습니다)
+//
 //  scenario  SCENARIOS 의 코드 ("S1".."S5", "A1".."A3").  "" 이면 Unassigned.
 //  run       "baseline"  = 승차감 지표 없이 주행 (w_comfort = 0)
 //            "comfort"   = 승차감 인지 모델 적용 주행
@@ -19,19 +22,23 @@ const SCENARIOS = [
   { code: "S1", group: "Structured",
      title: "Obstacle-zone avoidance",
      detail: "Single obstacle field crossed once to the left and once to the right.",
-     speeds: "15 / 30 / 50" },
+     speeds: "15 / 30 / 50" ,
+     image: "figures/scenario1.png" },
   { code: "S2", group: "Structured",
      title: "Zigzag obstacle avoidance",
      detail: "Alternating obstacles forcing a left-right-left weave.",
-     speeds: "15 / 30 / 50" },
+     speeds: "15 / 30 / 50" ,
+     image: "figures/scenario2.png" },
   { code: "S3", group: "Structured",
      title: "Consecutive obstacle avoidance",
      detail: "Obstacles spaced so that one avoidance manoeuvre runs into the next.",
-     speeds: "15 / 30 / 50" },
+     speeds: "15 / 30 / 50" ,
+     image: "figures/scenario3.png" },
   { code: "S4", group: "Structured",
      title: "Choice between two obstacles",
      detail: "Two obstacles of different height, both unavoidable. The planner has to pick the lower one.",
-     speeds: "15 / 30 / 50" },
+     speeds: "15 / 30 / 50" ,
+     image: "figures/scenario4.png" },
   { code: "S5", group: "Structured",
      title: "Obstacle-zone avoidance through a turn",
      detail: "Same obstacle field, entered on a left and on a right turn.",
@@ -39,11 +46,13 @@ const SCENARIOS = [
   { code: "A1", group: "Additional",
      title: "Pothole avoidance",
      detail: "Narrow walled corridor. Low speed only, the walls leave little lateral room.",
-     speeds: "10 / 15" },
+     speeds: "10 / 15" ,
+     image: "figures/scenario6.png" },
   { code: "A2", group: "Additional",
      title: "Obstacle narrower than the vehicle",
      detail: "The obstacle fits between the wheels, so the correct behaviour is not to avoid it.",
-     speeds: "15 / 30 / 50" },
+     speeds: "15 / 30 / 50" ,
+     image: "figures/scenario5.png" },
   { code: "A3", group: "Additional",
      title: "Obstacle at the roundabout",
      detail: "Obstacle placed on the roundabout approach.",

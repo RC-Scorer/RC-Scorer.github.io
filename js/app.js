@@ -37,38 +37,48 @@
   var scenarioSection = document.getElementById("scenarios");
   if (!scenarios.length && scenarioSection) scenarioSection.hidden = true;
 
-  var tbody = document.querySelector("#scenario-table tbody");
+  var list = document.getElementById("scenario-list");
   var lastGroup = null;
   scenarios.forEach(function (s) {
-    if (s.group !== lastGroup) {
+    if (s.group && s.group !== lastGroup) {
       lastGroup = s.group;
-      var gr = el("tr", "group-row");
-      var gc = el("td", null, s.group);
-      gc.colSpan = 4;
-      gr.appendChild(gc);
-      tbody.appendChild(gr);
+      var g = el("li", "sc-group", s.group);
+      g.setAttribute("role", "presentation");
+      list.appendChild(g);
     }
-    var tr = el("tr");
 
-    var td0 = el("td");
-    td0.appendChild(el("span", "code", s.code));
-    tr.appendChild(td0);
+    var li = el("li", "sc" + (s.image ? "" : " sc--noimg"));
 
-    var td1 = el("td");
-    td1.appendChild(el("span", "sc-title", s.title));
-    td1.appendChild(el("span", "sc-detail", s.detail));
-    tr.appendChild(td1);
+    var head = el("div", "sc-head");
+    head.appendChild(el("span", "code", s.code));
+    var txt = el("div", "sc-text");
+    txt.appendChild(el("h3", "sc-title", s.title));
+    txt.appendChild(el("p", "sc-detail", s.detail));
 
-    var td2 = el("td", "num");
-    td2.appendChild(document.createTextNode(s.speeds + " "));
-    td2.appendChild(el("span", "unit", "km/h"));
-    tr.appendChild(td2);
-
+    var meta = el("p", "sc-meta");
+    var sp = el("span", "num");
+    sp.appendChild(document.createTextNode(s.speeds + " "));
+    sp.appendChild(el("span", "unit", "km/h"));
+    meta.appendChild(sp);
     var n = countFor(s.code);
-    var td3 = el("td", "num" + (n ? "" : " n-zero"), n ? String(n) : "—");
-    tr.appendChild(td3);
+    meta.appendChild(el("span", "num n-clips" + (n ? "" : " n-zero"),
+      n ? n + (n === 1 ? " clip" : " clips") : "no clips yet"));
+    txt.appendChild(meta);
 
-    tbody.appendChild(tr);
+    head.appendChild(txt);
+    li.appendChild(head);
+
+    if (s.image) {
+      var fig = el("figure", "sc-fig");
+      var img = document.createElement("img");
+      img.src = s.image;
+      img.loading = "lazy";
+      img.alt = "Overhead diagram of scenario " + s.code + ": " + s.title;
+      fig.appendChild(img);
+      li.appendChild(fig);
+    }
+
+    list.appendChild(li);
   });
 
   /* --- filters ---------------------------------------------------------- */
