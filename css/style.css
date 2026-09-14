@@ -417,6 +417,49 @@ figcaption {
   border: 1px solid var(--line); border-radius: var(--r);
 }
 
+/* --- results table ------------------------------------------------------- */
+
+.table-scroll { overflow-x: auto; margin-inline: auto; }
+.rtable {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+.rtable th, .rtable td {
+  padding: .55rem .8rem .55rem 0;
+  text-align: left;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--line-2);
+}
+.rtable thead th {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: .68rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--ink-3);
+  padding-bottom: .5rem;
+}
+.rtable thead th .u { display: block; text-transform: none; letter-spacing: 0; }
+.rtable tbody th {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: .8rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.rtable td { color: var(--ink-2); }
+.rtable .r { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.rtable td.r { color: var(--ink); }
+.rtable .good { font-weight: 500; }
+.rtable tbody tr:last-child th, .rtable tbody tr:last-child td { border-bottom: 0; }
+.tfoot { margin-top: .8rem; font-size: .85rem; color: var(--ink-3); }
+
+.contrib li { align-items: flex-start; }
+.contrib .odd-key { padding-top: .25rem; }
+
 /* --- filters ------------------------------------------------------------- */
 
 .filters {
