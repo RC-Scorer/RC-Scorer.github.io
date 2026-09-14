@@ -29,9 +29,14 @@
 
   /* --- hero spec -------------------------------------------------------- */
   var total = recs.reduce(function (a, r) { return a + (r.seconds || 0); }, 0);
-  document.getElementById("spec-count").textContent = hasClips ? recs.length : "—";
-  document.getElementById("spec-mins").textContent =
-    hasClips ? Math.round(total / 60) + " min" : "—";
+  ["spec-count", "spec-mins"].forEach(function (id) {
+    var el2 = document.getElementById(id);
+    if (!el2) return;
+    if (!hasClips) { var row = el2.closest("div"); if (row) row.hidden = true; return; }
+    el2.textContent = id === "spec-count"
+      ? String(recs.length)
+      : Math.round(total / 60) + " min";
+  });
 
   /* --- scenario table --------------------------------------------------- */
   var scenarioSection = document.getElementById("scenario-block")
@@ -105,11 +110,12 @@
   }
 
   if (!hasClips) {
-    document.querySelector(".filters").hidden = true;
-    document.getElementById("result-line").hidden = true;
-    document.getElementById("empty").textContent =
-      "No clips published yet — add them to data/recordings.js.";
-    document.getElementById("empty").hidden = false;
+    // Nothing to show: drop the whole section and its nav entry rather than
+    // leaving an empty heading behind.
+    var vid = document.getElementById("videos");
+    if (vid) vid.hidden = true;
+    var navLink = document.querySelector('.secnav a[href="#videos"]');
+    if (navLink) navLink.hidden = true;
     return;
   }
 
