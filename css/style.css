@@ -148,6 +148,13 @@ body {
   text-wrap: balance;
 }
 
+.hero-title--long {
+  font-size: clamp(2.4rem, 7.2vw, 4.4rem);
+  line-height: 1.0;
+  letter-spacing: -.028em;
+  max-width: 16ch;
+}
+
 .hero-sub {
   margin: 1rem 0 0;
   max-width: 34ch;
@@ -174,7 +181,7 @@ body {
   gap: 1.25rem 2rem;
   margin: 0;
 }
-.spec > div { display: flex; flex-direction: column; gap: .3rem; }
+.spec > div { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
 .spec dt {
   font-family: var(--mono);
   font-size: .68rem;
@@ -189,6 +196,7 @@ body {
   font-size: 1rem;
   color: var(--on-dark);
   font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
 }
 
 /* --- bands --------------------------------------------------------------- */

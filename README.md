@@ -3,8 +3,8 @@
 Anonymous supplementary page for the RCScoring (ride-comfort) submission. No
 author name, no affiliation, no lab name appears anywhere in this folder.
 
-The sibling page for the other paper lives at `../../RadarAD/web/`. The two
-share `css/style.css` and `js/app.js` verbatim; RadarAD sets
+The sibling page ("Driving on Radar Alone") lives at `../../RadarAD/web/`. The two
+share `css/style.css` and `js/app.js` verbatim; that page sets
 `<html data-paper="radarad">` to swap its accent to cyan, while this page keeps
 the amber of a painted centre line.
 
