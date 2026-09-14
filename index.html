@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RCScoring</title>
+<meta name="description" content="Ride-comfort-aware trajectory selection from road-surface perception — real-vehicle recordings from a proving-ground campaign.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip" href="#recordings">Skip to recordings</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Anonymous submission · under review</p>
+    <h1 class="hero-title">RCScoring</h1>
+    <p class="hero-sub">Ride-comfort-aware trajectory selection from road-surface perception</p>
+    <div class="lane" role="presentation"></div>
+    <dl class="spec">
+      <div><dt>Site</dt><dd>K-City proving ground</dd></div>
+      <div><dt>Platform</dt><dd>Instrumented passenger vehicle</dd></div>
+      <div><dt>Cameras</dt><dd>4 synchronised</dd></div>
+      <div><dt>Recordings</dt><dd><span id="spec-count">—</span></dd></div>
+      <div><dt>Footage</dt><dd><span id="spec-mins">—</span></dd></div>
+    </dl>
+  </div>
+</header>
+
+<main>
+
+  <section class="band" id="overview">
+    <div class="wrap">
+      <div class="prose">
+      <h2>What this page holds</h2>
+      <p>
+        This page accompanies a submission on predicting the ride comfort of the
+        candidate trajectories produced by a multi-modal motion planner, so that
+        predicted comfort can act as one of the scores deciding which trajectory
+        the vehicle follows. The model reads the road surface ahead and estimates
+        what each candidate path would feel like before the vehicle commits to it.
+      </p>
+      <p>
+        Everything below is raw evidence from the real-vehicle campaign: the test
+        site, the scenario protocol, and every recording taken, including the runs
+        that failed. Nothing has been cut for presentation.
+      </p>
+      <p class="aside">
+        Author and affiliation details are withheld while the paper is under review.
+      </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--alt" id="site">
+    <div class="wrap">
+      <h2>Test site</h2>
+      <p class="lede">
+        All runs took place at K-City, an autonomous-driving proving ground in
+        Hwaseong-si, Republic of Korea. Two sections were used.
+      </p>
+      <figure class="figure">
+        <img src="figures/test_site.jpg" alt="Satellite view of the K-City proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
+        <figcaption>
+          <span class="tag tag--a">a</span>
+          Straight multi-lane section, driven north to south in lane 2 — the structured
+          obstacle scenarios.
+          <span class="tag tag--b">b</span>
+          Narrow walled corridor, driven south to north on the lane centre line — the
+          pothole scenario.
+          <span class="credit">Satellite imagery: VWorld, MOLIT, Republic of Korea.</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="protocol">
+    <div class="wrap">
+      <h2>Protocol</h2>
+      <p class="lede">
+        Each scenario is driven twice at every target speed. The two runs differ
+        only in the planner's cost function, so the pair isolates what the comfort
+        term changes.
+      </p>
+      <div class="runs">
+        <article class="run">
+          <p class="run-key"><span class="dot dot--base"></span>Baseline</p>
+          <p class="run-eq">w<sub>comfort</sub> = 0</p>
+          <p>The comfort term is switched off. The planner selects on its usual
+             costs alone.</p>
+        </article>
+        <article class="run">
+          <p class="run-key"><span class="dot dot--comf"></span>Comfort</p>
+          <p class="run-eq">w<sub>comfort</sub> &gt; 0</p>
+          <p>The predicted comfort score is restored and enters trajectory
+             selection.</p>
+        </article>
+      </div>
+      <p class="note">
+        Three-axis acceleration and angular rate are logged throughout both runs;
+        the comparison between the two logs is the measurement. Every attempt was
+        recorded and kept, successful or not.
+      </p>
+    </div>
+  </section>
+
+  <section class="band band--alt" id="scenarios">
+    <div class="wrap">
+      <h2>Scenarios</h2>
+      <p class="lede">
+        Five structured scenarios on the straight section, three additional ones
+        elsewhere on the site.
+      </p>
+      <div class="table-scroll">
+        <table class="spec-table" id="scenario-table">
+          <caption class="sr-only">Scenario protocol</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-code">Code</th>
+              <th scope="col">Scenario</th>
+              <th scope="col" class="col-speed">Target speed</th>
+              <th scope="col" class="col-n">Clips</th>
+            </tr>
+          </thead>
+          <tbody><!-- filled by app.js --></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark" id="recordings">
+    <div class="wrap">
+      <h2>Recordings</h2>
+      <p class="lede">
+        Onboard footage from each run, four synchronised camera angles at once.
+      </p>
+
+      <div class="filters" role="group" aria-label="Filter recordings">
+        <div class="filter-row" id="filter-scenario"></div>
+        <div class="filter-row" id="filter-run"></div>
+      </div>
+      <p class="result-line" id="result-line" aria-live="polite">—</p>
+
+      <ul class="grid" id="grid"></ul>
+      <p class="empty" id="empty" hidden>No recording matches this filter.</p>
+    </div>
+  </section>
+
+  <section class="band" id="cite">
+    <div class="wrap">
+      <div class="prose">
+      <h2>Citation</h2>
+      <pre class="bib"><code>@inproceedings{rcscoring,
+  title     = {RCScoring},
+  author    = {Anonymous},
+  booktitle = {Under review},
+  year      = {2027}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Supplementary material for an anonymous conference submission.</p>
+  </div>
+</footer>
+
+<script src="data/recordings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
