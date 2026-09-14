@@ -72,7 +72,6 @@
     txt.appendChild(meta);
 
     head.appendChild(txt);
-    li.appendChild(head);
 
     if (s.image) {
       var fig = el("figure", "sc-fig");
@@ -84,6 +83,7 @@
       li.appendChild(fig);
     }
 
+    li.appendChild(head);
     list.appendChild(li);
   });
 
