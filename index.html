@@ -60,83 +60,26 @@
   </div>
 </nav>
 
-<!-- ===================================================== ARCHITECTURE ===== -->
+<!-- ===================================================== ARCHITECTURE =====
+     The architecture figure goes here, full width, directly under the nav.
+     Drop the image in and uncomment:
+
 <section class="band teaser">
   <div class="wrap">
-    <!-- TODO replace with the paper's Fig. 1 once it is produced; this diagram
-         is drawn from the Section III description. -->
-    <figure class="figure figure--arch">
-      <svg viewBox="0 0 1180 300" role="img" aria-labelledby="archttl">
-        <title id="archttl">RC-Scorer pipeline: wheel-path road geometry, candidate trajectory and vehicle state enter a causal-masked Transformer encoder, which emits a three-axis body acceleration waveform reduced by ISO 2631-1 weighting to a single comfort cost per candidate.</title>
-        <defs>
-          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" class="ar-fill"/>
-          </marker>
-        </defs>
-
-        <!-- inputs -->
-        <g class="box in">
-          <rect x="8" y="16" width="236" height="52" rx="5"/>
-          <text x="24" y="38" class="t1">Wheel-path road height</text>
-          <text x="24" y="56" class="t2">4 tracks &#215; 500 samples, 100 Hz / 5 s</text>
-        </g>
-        <g class="box in">
-          <rect x="8" y="86" width="236" height="52" rx="5"/>
-          <text x="24" y="108" class="t1">Candidate trajectory</text>
-          <text x="24" y="126" class="t2">curvature and speed profile</text>
-        </g>
-        <g class="box in">
-          <rect x="8" y="156" width="236" height="52" rx="5"/>
-          <text x="24" y="178" class="t1">Vehicle state</text>
-          <text x="24" y="196" class="t2">11 channels at t&#8320;</text>
-        </g>
-
-        <path d="M252 112 H 306" class="arrow" marker-end="url(#ar)"/>
-
-        <!-- encoder -->
-        <g class="box enc">
-          <rect x="314" y="42" width="252" height="140" rx="5"/>
-          <text x="440" y="86" class="t1 c">Causal-masked</text>
-          <text x="440" y="106" class="t1 c">Transformer encoder</text>
-          <text x="440" y="134" class="t2 c">no vehicle embedding,</text>
-          <text x="440" y="150" class="t2 c">no identified parameters</text>
-        </g>
-
-        <path d="M574 112 H 628" class="arrow" marker-end="url(#ar)"/>
-
-        <!-- waveform -->
-        <g class="box">
-          <rect x="636" y="52" width="212" height="120" rx="5"/>
-          <text x="742" y="76" class="t1 c">Body acceleration</text>
-          <path d="M660 118 q10 -22 20 0 t20 0 q10 -30 20 0 t20 0 q10 -16 20 0 t20 0 q10 -24 20 0 t20 0 q10 -12 20 0"
-                class="wave"/>
-          <text x="742" y="156" class="t2 c">three axes over T seconds</text>
-        </g>
-
-        <path d="M856 112 H 910" class="arrow" marker-end="url(#ar)"/>
-
-        <!-- ISO reduction -->
-        <g class="box out">
-          <rect x="918" y="42" width="254" height="140" rx="5"/>
-          <text x="1045" y="80" class="t1 c">ISO 2631-1 weighting</text>
-          <text x="1045" y="100" class="t2 c">W&#8340; horizontal &#183; W&#8342; vertical</text>
-          <line x1="952" y1="116" x2="1138" y2="116" class="rule"/>
-          <text x="1045" y="150" class="t0 c">a&#7525;(&#964;&#8342;)</text>
-        </g>
-
-        <!-- per-candidate loop -->
-        <path d="M126 224 V 262 H 1045 V 196" class="arrow dash" marker-end="url(#ar)"/>
-        <text x="586" y="286" class="t2 c">re-evaluated for every candidate &#964;&#8321; &#8230; &#964;&#8342; the planner emits &#8212; road encoder shared</text>
-      </svg>
+    <figure class="figure figure--wide">
+      <img src="figures/architecture.jpg" alt="RC-Scorer predictor architecture" loading="lazy">
       <figcaption>
         The road height under the four tire contact points is re-extracted along
         each candidate trajectory, so a path that has never been driven still
         receives a score derived from the geometry it would actually traverse.
-        The planner consumes a<sub>v</sub> as an additive comfort cost.
       </figcaption>
     </figure>
   </div>
 </section>
+
+     A drawn version built from the Section III description is kept at
+     ../architecture_draft.html if it is ever useful.
+     ======================================================================= -->
 
 <main>
 

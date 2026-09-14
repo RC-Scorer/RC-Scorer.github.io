@@ -310,27 +310,6 @@ h3.sub:first-of-type { margin-top: 2rem; }
 /* architecture teaser ------------------------------------------------------ */
 
 .teaser { padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 4vw, 3rem); }
-.figure--arch svg { display: block; width: 100%; height: auto; }
-.figure--arch .box rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
-.figure--arch .enc rect { fill: var(--ink); stroke: var(--ink); }
-.figure--arch .enc text { fill: #fff; }
-.figure--arch .out rect { fill: var(--accent-2); stroke: var(--accent); }
-.figure--arch .t0 {
-  font-family: var(--body); font-size: 24px; font-weight: 600; fill: var(--accent);
-}
-.figure--arch .t1 {
-  font-family: var(--display); font-size: 15px; font-weight: 600; fill: var(--ink);
-}
-.figure--arch .t2 {
-  font-family: var(--mono); font-size: 11.5px; fill: var(--ink-3);
-}
-.figure--arch .enc .t2 { fill: #b9bcc2; }
-.figure--arch .c { text-anchor: middle; }
-.figure--arch .arrow { fill: none; stroke: var(--ink-3); stroke-width: 1.6; }
-.figure--arch .dash { stroke-dasharray: 5 4; }
-.figure--arch .ar-fill { fill: var(--ink-3); }
-.figure--arch .wave { fill: none; stroke: var(--accent); stroke-width: 2; }
-.figure--arch .rule { stroke: var(--accent); stroke-width: 1; opacity: .5; }
 
 /* --- figures ------------------------------------------------------------- */
 
