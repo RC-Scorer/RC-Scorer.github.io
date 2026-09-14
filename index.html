@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RCScoring</title>
-<meta name="description" content="Ride-comfort-aware trajectory selection from road-surface perception — real-vehicle recordings from a proving-ground campaign.">
+<title>RC-Scorer</title>
+<meta name="description" content="Ride-comfort-aware trajectory selection from road-surface perception.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,13 +13,15 @@
 </head>
 <body>
 
-<a class="skip" href="#recordings">Skip to recordings</a>
+<a class="skip" href="#abstract">Skip to content</a>
 
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow">Anonymous submission · under review</p>
-    <h1 class="hero-title">RCScoring</h1>
+    <h1 class="hero-title">RC-Scorer</h1>
     <p class="hero-sub">Ride-comfort-aware trajectory selection from road-surface perception</p>
+    <!-- TODO once the paper is de-anonymised, add author and affiliation lines here.
+         They must stay out while the submission is under double-anonymous review. -->
     <div class="lane" role="presentation"></div>
     <dl class="spec">
       <div><dt>Site</dt><dd>K-City proving ground</dd></div>
@@ -31,34 +33,92 @@
   </div>
 </header>
 
+<nav class="secnav" aria-label="Sections">
+  <div class="wrap secnav-inner">
+    <a href="#abstract">Abstract</a>
+    <a href="#introduction">Introduction</a>
+    <a href="#method">Method</a>
+    <a href="#experiments">Experiments</a>
+    <a href="#videos">Videos</a>
+    <a href="#BibTeX">BibTeX</a>
+  </div>
+</nav>
+
 <main>
 
-  <section class="band" id="overview">
+  <!-- ===================================================== ABSTRACT ======= -->
+  <section class="band" id="abstract">
     <div class="wrap">
+      <h2>Abstract</h2>
       <div class="prose">
-      <h2>What this page holds</h2>
-      <p>
-        This page accompanies a submission on predicting the ride comfort of the
-        candidate trajectories produced by a multi-modal motion planner, so that
-        predicted comfort can act as one of the scores deciding which trajectory
-        the vehicle follows. The model reads the road surface ahead and estimates
-        what each candidate path would feel like before the vehicle commits to it.
-      </p>
-      <p>
-        Everything below is raw evidence from the real-vehicle campaign: the test
-        site, the scenario protocol, and every recording taken, including the runs
-        that failed. Nothing has been cut for presentation.
-      </p>
-      <p class="aside">
-        Author and affiliation details are withheld while the paper is under review.
-      </p>
+        <p class="todo"><span class="todo-tag">To be added</span>
+          Paste the paper's abstract here. Until then the page still reads as a
+          complete supplementary site — the test site, the protocol, the scenario
+          catalogue and every recording are already below.</p>
+      </div>
+      <!-- TODO teaser / architecture figure goes here, full width:
+           <figure class="figure figure--wide">
+             <img src="figures/teaser.jpg" alt="..." loading="lazy">
+             <figcaption>…</figcaption>
+           </figure> -->
+    </div>
+  </section>
+
+  <!-- ================================================= INTRODUCTION ======= -->
+  <section class="band band--alt" id="introduction">
+    <div class="wrap">
+      <h2>Introduction</h2>
+      <div class="prose">
+        <p class="todo"><span class="todo-tag">To be added</span>
+          Motivation and contributions.</p>
       </div>
     </div>
   </section>
 
-  <section class="band band--alt" id="site">
+  <!-- ======================================================= METHOD ======= -->
+  <section class="band" id="method">
     <div class="wrap">
-      <h2>Test site</h2>
+      <h2>Method</h2>
+      <div class="prose">
+        <p class="todo"><span class="todo-tag">To be added</span>
+          The model: how the road surface ahead is perceived, how a comfort score
+          is predicted for each candidate trajectory, and how that score enters
+          selection.</p>
+      </div>
+
+      <h3 class="sub" id="scenarios">Scenarios the score has to separate</h3>
+      <p class="lede">
+        A comfort score is only useful if it ranks candidate trajectories the way
+        a passenger would. The eight scenarios below were designed to make that
+        ranking observable: in each one the planner faces a choice between paths
+        that differ in what the vehicle would feel, and the correct answer is
+        known in advance.
+      </p>
+      <p class="lede">
+        The diagrams show the two paths the scenario contrasts — the one a
+        planner takes on its usual costs alone, and the one a comfort-aware
+        planner should prefer. Five are driven on the straight section, three
+        elsewhere on the site. They are described here rather than in the paper,
+        where there was no room for them.
+      </p>
+      <p class="path-key">
+        <span class="pk"><span class="pk-line pk-line--base"></span>baseline path</span>
+        <span class="pk"><span class="pk-line pk-line--comf"></span>comfort-aware path</span>
+      </p>
+      <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
+    </div>
+  </section>
+
+  <!-- ================================================== EXPERIMENTS ======= -->
+  <section class="band band--alt" id="experiments">
+    <div class="wrap">
+      <h2>Experiments</h2>
+      <p class="lede">
+        Every scenario was driven on a real vehicle at a proving ground, twice at
+        each target speed, and logged in full.
+      </p>
+
+      <h3 class="sub">Test site</h3>
       <p class="lede">
         All runs took place at K-City, an autonomous-driving proving ground in
         Hwaseong-si, Republic of Korea. Two sections were used.
@@ -75,12 +135,8 @@
           <span class="credit">Satellite imagery: VWorld, MOLIT, Republic of Korea.</span>
         </figcaption>
       </figure>
-    </div>
-  </section>
 
-  <section class="band" id="protocol">
-    <div class="wrap">
-      <h2>Protocol</h2>
+      <h3 class="sub">Protocol</h3>
       <p class="lede">
         Each scenario is driven twice at every target speed. The two runs differ
         only in the planner's cost function, so the pair isolates what the comfort
@@ -105,27 +161,19 @@
         the comparison between the two logs is the measurement. Every attempt was
         recorded and kept, successful or not.
       </p>
+
+      <h3 class="sub">Results</h3>
+      <div class="prose">
+        <p class="todo"><span class="todo-tag">To be added</span>
+          Quantitative comparison between the baseline and comfort runs.</p>
+      </div>
     </div>
   </section>
 
-  <section class="band band--alt" id="scenarios">
+  <!-- ======================================================= VIDEOS ======= -->
+  <section class="band band--dark" id="videos">
     <div class="wrap">
-      <h2>Scenarios</h2>
-      <p class="lede">
-        Five structured scenarios on the straight section, three additional ones
-        elsewhere on the site.
-      </p>
-      <p class="path-key">
-        <span class="pk"><span class="pk-line pk-line--base"></span>baseline path</span>
-        <span class="pk"><span class="pk-line pk-line--comf"></span>comfort-aware path</span>
-      </p>
-      <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
-    </div>
-  </section>
-
-  <section class="band band--dark" id="recordings">
-    <div class="wrap">
-      <h2>Recordings</h2>
+      <h2>Videos</h2>
       <p class="lede">
         Onboard footage from each run, four synchronised camera angles at once.
       </p>
@@ -141,12 +189,13 @@
     </div>
   </section>
 
-  <section class="band" id="cite">
+  <!-- ======================================================= BIBTEX ======= -->
+  <section class="band" id="BibTeX">
     <div class="wrap">
       <div class="prose">
-      <h2>Citation</h2>
-      <pre class="bib"><code>@inproceedings{rcscoring,
-  title     = {RCScoring},
+      <h2>BibTeX</h2>
+      <pre class="bib"><code>@inproceedings{rcscorer,
+  title     = {RC-Scorer},
   author    = {Anonymous},
   booktitle = {Under review},
   year      = {2027}

@@ -34,7 +34,8 @@
     hasClips ? Math.round(total / 60) + " min" : "—";
 
   /* --- scenario table --------------------------------------------------- */
-  var scenarioSection = document.getElementById("scenarios");
+  var scenarioSection = document.getElementById("scenario-block")
+    || document.getElementById("scenarios");
   if (!scenarios.length && scenarioSection) scenarioSection.hidden = true;
 
   var list = document.getElementById("scenario-list");
