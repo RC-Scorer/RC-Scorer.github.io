@@ -60,26 +60,21 @@
   </div>
 </nav>
 
-<!-- ===================================================== ARCHITECTURE =====
-     The architecture figure goes here, full width, directly under the nav.
-     Drop the image in and uncomment:
-
+<!-- ===================================================== ARCHITECTURE ===== -->
 <section class="band teaser">
   <div class="wrap">
     <figure class="figure figure--wide">
-      <img src="figures/architecture.jpg" alt="RC-Scorer predictor architecture" loading="lazy">
+      <img src="figures/architecture.png" alt="Onboard pipeline: LiDAR, GNSS/INS and wheel speed feed road surface mapping, whose local elevation map is consumed by ride comfort scoring alongside the lattice planner's candidates" loading="eager" width="1800" height="725">
       <figcaption>
-        The road height under the four tire contact points is re-extracted along
-        each candidate trajectory, so a path that has never been driven still
-        receives a score derived from the geometry it would actually traverse.
+        The onboard stack. Scan deskew and accumulation build a local elevation
+        map; the wheel-path road height is then extracted under each candidate the
+        lattice planner emits, and the predicted ride-comfort cost enters
+        candidate selection alongside the centerline, consistency and curvature
+        terms.
       </figcaption>
     </figure>
   </div>
 </section>
-
-     A drawn version built from the Section III description is kept at
-     ../architecture_draft.html if it is ever useful.
-     ======================================================================= -->
 
 <main>
 
