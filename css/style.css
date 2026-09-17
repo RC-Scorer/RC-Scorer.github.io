@@ -331,8 +331,10 @@ h3.sub:first-of-type { margin-top: 2rem; }
   letter-spacing: .08em; color: #fff;
 }
 figcaption {
-  margin: .9rem auto 0;
-  max-width: 78ch;
+  /* captions run the full width of the figure they belong to, so the text
+     block lines up with the image edges rather than sitting narrower */
+  margin: .9rem 0 0;
+  max-width: none;
   color: var(--ink-2);
   font-size: .92rem;
   line-height: 1.6;
