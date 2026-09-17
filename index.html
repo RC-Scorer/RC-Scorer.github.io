@@ -66,12 +66,11 @@
     <figure class="figure figure--wide">
       <img src="figures/fig5_onboard_stack.png" alt="Onboard stack: lidar, GNSS/INS and wheel speed feed road surface mapping; the local elevation map and the lattice planner's candidates feed wheel-path profile extraction and RC-Scorer, whose ride comfort cost joins centerline, consistency and curvature in candidate selection" loading="eager" width="1900" height="543">
       <figcaption>
-        <strong>Fig. 5 — the onboard stack used for the closed-loop evaluation.</strong>
         Lidar scans are deskewed and accumulated into a local elevation map of road
-        height; the lattice planner generates candidates, the wheel-path profile is
-        re-extracted per candidate and the model re-evaluated, and the resulting
-        ride-comfort cost is combined with the centerline, consistency and
-        curvature costs to select the executed trajectory.
+        height. The wheel-path profile is re-extracted under each candidate the
+        lattice planner emits and the model re-evaluated, and the resulting
+        ride-comfort cost joins the centerline, consistency and curvature terms in
+        candidate selection.
       </figcaption>
     </figure>
   </div>
@@ -80,243 +79,142 @@
 <main>
 
   <!-- ===================================================== ABSTRACT ======= -->
-  <section class="band band--alt" id="abstract">
+  <section class="band" id="abstract">
     <div class="wrap">
       <h2>Abstract</h2>
       <div class="prose justify">
         <p>
           Ride comfort is a primary measure of quality in autonomous driving
-          services. Autonomous driving planners usually account for it through
-          jerk and similar terms that act on instantaneous motion, and rarely
-          evaluate the comfort of the whole trajectory, which is fixed once the
-          trajectory is selected. ISO 2631-1, the international standard for
-          whole-body vibration, scores comfort by weighting body acceleration
-          according to human sensitivity at each frequency, so that a slow sway
-          and a sharp shudder are not counted alike. Computing this score for a
-          trajectory before it is driven has relied on a vehicle dynamics model
-          calibrated to each specific vehicle. This paper proposes
-          <strong>RC-Scorer</strong>, a deep learning model based on a causal
-          Transformer that reads the road under a candidate trajectory and
-          predicts its frequency-weighted acceleration waveform, trained on
-          driving logs without a vehicle dynamics model or vehicle-specific
-          calibration. RC-Scorer is more accurate than existing methods based on
-          vehicle models or road-roughness indices, and also predicts what they
-          cannot: the weighted acceleration on all three axes, and the additional
-          measures the standard requires when a ride contains sudden jolts such as
-          bumps and potholes. On an autonomous vehicle, RC-Scorer reads a road
-          profile built from the vehicle's own lidar while driving and re-scores
-          every candidate at run time, reducing the measured ISO 2631-1 vibration
-          total value over obstacles by 75&ndash;84&thinsp;% in the four layouts
-          where the obstacles can be fully avoided.
+          services, yet planners usually account for it through jerk and similar
+          terms acting on instantaneous motion, and rarely evaluate the comfort of
+          the whole trajectory — which is fixed once the trajectory is selected.
+          ISO 2631-1, the international standard for whole-body vibration, scores
+          comfort by weighting body acceleration according to human sensitivity at
+          each frequency, so that a slow sway and a sharp shudder are not counted
+          alike. Computing that score before a trajectory is driven has relied on a
+          vehicle dynamics model calibrated to each specific vehicle.
+          <strong>RC-Scorer</strong> is a causal Transformer that reads the road
+          under a candidate trajectory and predicts its frequency-weighted
+          acceleration waveform, trained on driving logs with no vehicle dynamics
+          model and no vehicle-specific calibration. It is more accurate than
+          methods based on vehicle models or road-roughness indices, and predicts
+          what they cannot: the weighted acceleration on all three axes, and the
+          additional measures the standard requires when a ride contains sudden
+          jolts. On an autonomous vehicle it reads a road profile built from the
+          vehicle's own lidar while driving and re-scores every candidate at run
+          time, reducing the measured vibration total value over obstacles by
+          75&ndash;84&thinsp;% in the layouts where they can be fully avoided.
         </p>
       </div>
     </div>
   </section>
 
   <!-- ======================================================= METHOD ======= -->
-  <section class="band" id="method">
+  <section class="band band--alt" id="method">
     <div class="wrap">
       <h2>Method</h2>
 
-      <figure class="figure">
-        <img src="figures/fig1_architecture.png" alt="RC-Scorer architecture: wheel speed and GNSS/INS form a state token; the wheel road profile and planner path form road embeddings split into past and current tokens; a causal Transformer encoder with L layers feeds an output head emitting weighted a_x, a_y and a_z waveforms, reduced to the ISO 2631-1 score" loading="lazy" width="1006" height="1112">
+      <figure class="figure figure--narrow">
+        <img src="figures/fig1_architecture.png" alt="RC-Scorer architecture: wheel speed and GNSS/INS form a state token; the wheel road profile and planner path form road embeddings split into past and current tokens; a causal Transformer encoder feeds an output head emitting weighted a_x, a_y and a_z waveforms, reduced to the ISO 2631-1 score" loading="lazy" width="1006" height="1112">
         <figcaption>
-          <strong>Fig. 1 — architecture of RC-Scorer.</strong>
           The four wheel-path road channels and the candidate trajectory are
           embedded as a sequence of along-path tokens, prefixed by a single token
-          carrying the vehicle state at <em>t</em><sub>0</sub>; three causal-masked
-          encoder layers, each attending under the causal mask, and an output head
-          emit the three-axis weighted body acceleration waveform over the
-          prediction horizon, which combines into the scalar a<sub>v</sub> the
-          autonomous driving planner uses.
+          carrying the vehicle state. Causal-masked encoder layers and an output
+          head emit the three-axis weighted waveform, which reduces to the scalar
+          a<sub>v</sub> the planner uses.
         </figcaption>
       </figure>
 
-      <div class="cols">
+      <div class="cols cols--2">
         <article>
           <h3>The quantity the standard defines</h3>
           <p>
             Each axis waveform is filtered by the weighting ISO 2631-1 prescribes
             for that direction — W<sub>d</sub> horizontal, W<sub>k</sub> vertical —
-            giving a<sub>w,i</sub>, whose root mean square over a window combines
-            across the three translational axes into the <em>point vibration total
-            value</em> a<sub>v</sub>, with the comfort factors
-            k<sub>x</sub>&nbsp;=&nbsp;k<sub>y</sub>&nbsp;=&nbsp;k<sub>z</sub>&nbsp;=&nbsp;1.
-          </p>
-        </article>
-        <article>
-          <h3>Where a signal is dominated by shocks</h3>
-          <p>
-            Basic RMS evaluation then understates exposure, and the standard falls
-            back on three further descriptors, each defined on a <em>single</em>
-            weighted axis and none on the multi-axis a<sub>v</sub> — the maximum
-            transient vibration value MTVV, the vibration dose value VDV, and the
-            crest factor. RC-Scorer produces all of them.
+            and the three translational axes combine into the point vibration total
+            value a<sub>v</sub>. Where a signal is dominated by shocks the basic RMS
+            understates exposure, and the standard falls back on three further
+            descriptors defined on a single weighted axis: MTVV, VDV and the crest
+            factor. RC-Scorer produces all of them.
           </p>
         </article>
         <article>
           <h3>Scored per candidate, not per road</h3>
           <p>
-            Let {τ<sub>k</sub>} be the candidates the planner emits in one cycle.
-            For each τ<sub>k</sub> the road height under the four tire contact
-            points along that candidate is extracted,
-            z<sub>k</sub>&nbsp;∈&nbsp;ℝ<sup>4&times;N</sup> with N&nbsp;=&nbsp;500
-            samples at 100&nbsp;Hz, assumed observable ahead to the horizon the
-            candidate spans. RC-Scorer maps these, with the candidate kinematics
-            and the current vehicle state, to the three-axis weighted waveform over
-            the next T&nbsp;=&nbsp;5&nbsp;s.
+            For each candidate the planner emits, the road height under the four
+            tire contact points is sampled along that candidate — 500 samples at
+            100&nbsp;Hz — and passed with the candidate kinematics and the current
+            vehicle state to the model, which returns the three-axis weighted
+            waveform over the next 5&nbsp;s. The planner adds
+            a<sub>v</sub>(τ<sub>k</sub>) to the centerline, consistency and curvature
+            costs of the lattice and executes the lowest-cost candidate. Candidates
+            are scored together in a batch.
           </p>
         </article>
         <article>
-          <h3>The road as the vehicle builds it</h3>
-          <p>
-            Offline the profile comes from the dataset's post-processed point
-            cloud; on the vehicle the same quantity is deskewed and accumulated at
-            run time into a ground-anchored grid by dead-reckoning assisted
-            registration. The two are not the same observation with noise added:
-            the onboard profile is assembled only from returns acquired
-            <em>before</em> the vehicle reaches a given spot. Unobserved stretches
-            are filled by linear interpolation — in the 4&ndash;8&nbsp;Hz band where
-            the ISO weighting peaks, 2.25&nbsp;mm against 3.50&nbsp;mm for holding
-            the last value.
-          </p>
-        </article>
-        <article>
-          <h3>Causality in the architecture</h3>
+          <h3>Causality, and no vehicle model</h3>
           <p>
             Future road geometry cannot cause present vibration, and a causal mask
-            over self-attention enforces that rather than relying on the data to
-            teach it. The encoder has three pre-norm layers of width sixty-four with
-            four attention heads and a feed-forward width of two hundred fifty-six,
-            reads seventy-one tokens at a patch size of ten, and holds 175,070
-            parameters. Of the seventy road tokens, fifty cover the candidate's next
-            5&nbsp;s and twenty the 2&nbsp;s already driven; the latter also carry
-            the six inertial channels measured over that stretch. The model carries
-            <em>no</em> explicit vehicle representation and no vehicle-specific
-            calibration.
+            over self-attention enforces that rather than leaving it to the data.
+            Three pre-norm layers of width sixty-four read seventy-one tokens and
+            hold 175,070 parameters; of the seventy road tokens, fifty cover the
+            candidate's next 5&nbsp;s and twenty the 2&nbsp;s already driven, the
+            latter also carrying the measured inertial channels. The model has no
+            explicit vehicle representation and no vehicle-specific calibration.
           </p>
         </article>
         <article>
-          <h3>Training on the quantity that is reported</h3>
+          <h3>Trained on the quantity that is reported</h3>
           <p>
             Because the reported quantity is a weighted RMS, that quantity is placed
             in the loss: a waveform term, a relative band-energy term over seven
-            octaves spanning 0.5&nbsp;Hz to 50&nbsp;Hz, and a moment term on the
-            a<sub>v</sub> distribution, weighted λ<sub>band</sub>&nbsp;=&nbsp;2 and
-            λ<sub>a<sub>v</sub></sub>&nbsp;=&nbsp;20. The log ratio makes the band
-            penalty relative, so quiet bands are not swamped by loud ones. Adam at
-            3&times;10<sup>&minus;3</sup>, weight decay
-            10<sup>&minus;4</sup>, a cosine schedule over forty epochs, gradient
-            clipping at unit norm.
+            octaves from 0.5 to 50&nbsp;Hz, and a moment term on the a<sub>v</sub>
+            distribution. The log ratio makes the band penalty relative, so quiet
+            bands are not swamped by loud ones. Training uses post-processed road
+            profiles; deployment reads ones the vehicle accumulates at run time,
+            where unobserved stretches are filled by linear interpolation.
           </p>
         </article>
-      </div>
-
-      <p class="note wide">
-        <strong>Candidate-conditional re-evaluation.</strong>
-        For each candidate set submitted for scoring, the road grid is re-sampled
-        under each candidate's own four wheel paths to obtain z<sub>k</sub>.
-        RC-Scorer emits a three-axis weighted acceleration waveform for each
-        candidate, and the reduction gives a<sub>v</sub>(τ<sub>k</sub>), so the
-        comfort cost is evaluated for the road <em>and</em> the motion associated
-        with each candidate. The planner adds a<sub>v</sub>(τ<sub>k</sub>) to the
-        centerline, consistency and curvature costs of the lattice and executes the
-        lowest-cost candidate. Candidates are scored together in a batch, and the
-        road profiles and candidate inputs are refreshed for the next scoring cycle.
-      </p>
-
-      <!-- ---------------------------------------------------- scenarios --- -->
-      <div id="scenario-block">
-        <h3 class="sub">Fig. 3 — obstacle layouts for the closed-loop test</h3>
-        <p class="lede wide">
-          Six layouts, seen from above with the vehicle approaching from the left,
-          each putting a different question to the scorer. S1&ndash;S3 place speed
-          bumps under one or both wheel tracks. S4 places bumps of unequal height at
-          the same station, so no candidate avoids both and the appropriate response
-          is to move toward the lower one. S5 places three low, flat bumps
-          <em>between</em> the wheel tracks, where keeping the center leaves the
-          wheels clear. S6 places three potholes along one wheel track, where
-          lateral avoidance is appropriate.
-        </p>
-        <p class="path-key">
-          <span class="pk"><span class="pk-line pk-line--base"></span>scorer disabled</span>
-          <span class="pk"><span class="pk-line pk-line--comf"></span>scorer enabled</span>
-        </p>
-        <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
       </div>
     </div>
   </section>
 
   <!-- ================================================== EXPERIMENTS ======= -->
-  <section class="band band--alt" id="experiments">
+  <section class="band" id="experiments">
     <div class="wrap">
       <h2>Experiments</h2>
 
-      <h3 class="sub">Setup</h3>
       <div class="cols cols--2">
         <article>
           <h3>Offline</h3>
           <p>
-            CARD, a multi-country road dataset recorded in Germany and Italy that
-            provides four-wheel contact-point height, the planned trajectory and
-            synchronized IMU together. Evaluation uses a held-out split of 29
-            sequences and 13,875 windows — not the dataset's official one, which
-            divides stereo pairs rather than sequences. Because different sequences
-            retraverse the same roads, sequences are grouped by trajectory overlap
-            and each group is assigned whole to one side, leaving no road on both.
-            Windows are drawn at a stride of 0.25&nbsp;s from 5&nbsp;s spans and
-            therefore overlap by 95&thinsp;%, putting the effective sample size
-            nearer 700 than 13,875. All methods share one weighting implementation,
-            identical wheel-path inputs and identical speed profiles, so differences
-            are attributable to the response model alone. Fitting the displacement
-            spectral density at the reference spatial frequency
-            n<sub>0</sub>&nbsp;=&nbsp;0.1&nbsp;m<sup>&minus;1</sup> places
-            85.5&thinsp;% of windows in ISO 8608 classes A to C.
+            CARD, a multi-country road dataset recorded in Germany and Italy, giving
+            four-wheel contact-point height, the planned trajectory and synchronised
+            IMU together. The held-out split is 29 sequences and 13,875 windows,
+            grouped by trajectory overlap so that no road appears on both sides. All
+            methods share one weighting implementation and identical wheel-path
+            inputs, so differences are attributable to the response model alone.
           </p>
         </article>
         <article>
           <h3>Closed loop</h3>
           <p>
-            An autonomous vehicle built on a Hyundai Ioniq 5. A roof-mounted Ouster
-            OS1 128-channel lidar at 10&nbsp;Hz is accumulated into a ground-anchored
-            grid, from which four wheel-path height sequences
-            (4&nbsp;&times;&nbsp;500 samples at 100&nbsp;Hz over 5&nbsp;s) are
-            extracted per candidate; ground truth is a 100&nbsp;Hz NovAtel PwrPak7
-            RTK-GNSS/INS. A lattice planner in the Frenet frame of the lane
-            centerline emits five candidates at lateral offsets 0,
-            &plusmn;1.25 and &plusmn;2.5&nbsp;m. RC-Scorer is deployed
-            <em>unchanged</em> from the offline evaluation, but the profile it reads
-            is no longer the post-processed one it was trained on.
+            An autonomous Hyundai Ioniq 5 with a roof-mounted 128-channel lidar at
+            10&nbsp;Hz and a 100&nbsp;Hz RTK-GNSS/INS for ground truth. A lattice
+            planner emits five candidates at lateral offsets 0, &plusmn;1.25 and
+            &plusmn;2.5&nbsp;m. RC-Scorer is deployed unchanged from the offline
+            evaluation, but the profile it reads is no longer the post-processed one
+            it was trained on.
           </p>
         </article>
       </div>
 
-      <figure class="figure">
-        <img src="figures/fig4_vehicle.png" alt="The autonomous vehicle: a battery-electric SUV carrying a roof-mounted 128-channel Ouster lidar, a NovAtel PwrPak7 RTK-GNSS/INS and a Kvaser and PCAN CAN interface" loading="lazy" width="857" height="505">
-        <figcaption>
-          <strong>Fig. 4 — the autonomous vehicle used for the closed-loop
-          evaluation,</strong> a battery-electric SUV carrying a roof-mounted
-          128-channel lidar and an RTK-GNSS/INS.
-        </figcaption>
-      </figure>
-
-      <p class="note wide">
-        <strong>Applicability of the basic evaluation.</strong>
-        ISO 2631-1 conditions the basic RMS evaluation on the signal not containing
-        sudden jolts, and applying its two criteria to the measured vertical axis
-        over the validation windows, the crest factor exceeds nine on
-        0.34&thinsp;% of them while VDV&thinsp;/&thinsp;(a<sub>w</sub>T<sup>1/4</sup>)
-        exceeds 1.75 on 13.6&thinsp;%. The second fraction is large enough that the
-        standard's own test rejects an evaluation by weighted RMS alone on that part
-        of the data, which is why VDV is reported alongside it.
-      </p>
-
-      <h3 class="sub">Table I — comparison with model-based baselines</h3>
+      <h3 class="sub">Accuracy against model-based baselines</h3>
       <p class="lede wide">
         Mean absolute error on the offline validation split. The <code>zero</code>
-        column is a reference that predicts 0 for every window, so its error equals
-        the measured mean of each row. &ldquo;—&rdquo; marks a quantity the method
-        does not produce, not one left unmeasured.
+        column predicts 0 for every window, so its error is the measured mean of
+        each row. A dash marks a quantity the method cannot produce, not one left
+        unmeasured.
       </p>
       <div class="table-scroll">
         <table class="rtable">
@@ -336,20 +234,20 @@
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" colspan="6" class="cfg">MAE of the weighted RMS <span class="u">m s<sup>&minus;2</sup></span></th></tr>
+            <tr><th scope="row" colspan="6" class="cfg">weighted RMS <span class="u">m s<sup>&minus;2</sup></span></th></tr>
             <tr><th scope="row">a<sub>w,x</sub></th><td class="r">0.1670</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0328</td></tr>
             <tr><th scope="row">a<sub>w,y</sub></th><td class="r">0.1848</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0229</td></tr>
             <tr><th scope="row">a<sub>w,z</sub></th><td class="r">0.2581</td><td class="r">0.0983</td><td class="r">0.0900</td><td class="r">0.0774</td><td class="r em">0.0377</td></tr>
             <tr><th scope="row">a<sub>v</sub></th><td class="r">0.3735</td><td class="r">0.1031</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0445</td></tr>
-            <tr><th scope="row" colspan="6" class="cfg">MAE of MTVV <span class="u">m s<sup>&minus;2</sup></span></th></tr>
+            <tr><th scope="row" colspan="6" class="cfg">MTVV <span class="u">m s<sup>&minus;2</sup></span></th></tr>
             <tr><th scope="row">a<sub>w,x</sub></th><td class="r">0.3114</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0766</td></tr>
             <tr><th scope="row">a<sub>w,y</sub></th><td class="r">0.3135</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0579</td></tr>
             <tr><th scope="row">a<sub>w,z</sub></th><td class="r">0.4071</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r">0.1349</td><td class="r em">0.0692</td></tr>
-            <tr><th scope="row" colspan="6" class="cfg">MAE of VDV <span class="u">m/s<sup>1.75</sup></span></th></tr>
+            <tr><th scope="row" colspan="6" class="cfg">VDV <span class="u">m/s<sup>1.75</sup></span></th></tr>
             <tr><th scope="row">a<sub>w,x</sub></th><td class="r">0.4176</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0904</td></tr>
             <tr><th scope="row">a<sub>w,y</sub></th><td class="r">0.4293</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.0675</td></tr>
             <tr><th scope="row">a<sub>w,z</sub></th><td class="r">0.5934</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r">0.1915</td><td class="r em">0.1016</td></tr>
-            <tr><th scope="row" colspan="6" class="cfg">MAE of the crest factor <span class="u">–</span></th></tr>
+            <tr><th scope="row" colspan="6" class="cfg">crest factor <span class="u">–</span></th></tr>
             <tr><th scope="row">a<sub>w,x</sub></th><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.7119</td></tr>
             <tr><th scope="row">a<sub>w,y</sub></th><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r em">0.5289</td></tr>
             <tr><th scope="row">a<sub>w,z</sub></th><td class="r tbd">—</td><td class="r tbd">—</td><td class="r tbd">—</td><td class="r">0.7729</td><td class="r em">0.7369</td></tr>
@@ -358,73 +256,41 @@
       </div>
       <p class="note tfoot wide">
         The dashes report a capability gap before the numbers report an accuracy
-        gap. MTVV, VDV and the crest factor need a waveform to exist, and the IRI
-        and spectral routes emit a scalar roughness index; a vertical-only state
-        produces no horizontal response at all. On the vertical axis RC-Scorer cuts
-        the quarter-car's error from 0.0774 to 0.0377&nbsp;m&thinsp;s<sup>&minus;2</sup>,
-        and the margin widens on the descriptors (0.1349&nbsp;&rarr;&nbsp;0.0692 on
-        MTVV, 0.1915&nbsp;&rarr;&nbsp;0.1016 on VDV). The horizontal axes, which none
-        of these model-based methods reach, are held to 19.6&thinsp;% and
-        12.4&thinsp;% of their measured levels, the same band as the vertical axis
-        at 14.6&thinsp;%. On a<sub>v</sub> — the one direct comparison in the paper,
-        where IRI and RC-Scorer predict the same quantity against the same reference
-        mean — RC-Scorer is 2.3 times more accurate.
-      </p>
-      <p class="note wide">
-        <strong>A second vehicle.</strong> On 15 validation sequences (3,830
-        windows) recorded with the closed-loop vehicle, whose lidar and roads differ
-        from those of CARD, RC-Scorer trained only on those logs reaches an
-        a<sub>v</sub> MAE of 0.1138&nbsp;m&thinsp;s<sup>&minus;2</sup> against 0.4292
-        for the <code>zero</code> reference. Initializing from the CARD model and
-        fine-tuning gives 0.0985. No vehicle-specific quantity is fitted in either
-        case.
+        gap: MTVV, VDV and the crest factor need a waveform to exist, and a
+        vertical-only state produces no horizontal response at all. On a<sub>v</sub>
+        — the one direct comparison, where IRI and RC-Scorer predict the same
+        quantity against the same reference mean — RC-Scorer is 2.3 times more
+        accurate. Trained instead on 15 sequences from the closed-loop vehicle, it
+        reaches an a<sub>v</sub> MAE of 0.1138 against 0.4292 for <code>zero</code>,
+        with no vehicle-specific quantity fitted in either case.
       </p>
 
-      <h3 class="sub">Fig. 2 — three surfaces of increasing roughness</h3>
       <figure class="figure figure--wide">
-        <img src="figures/fig2_surfaces.png" alt="Three columns, one per ISO 8608 roughness class. Top row: accumulated height map across the lane with the four wheel paths. Middle row: ISO-weighted vertical acceleration for quarter-car, measurement and RC-Scorer. Bottom row: one-third-octave spectrum." loading="lazy" width="1900" height="879">
+        <img src="figures/fig2_surfaces.png" alt="Three columns, one per ISO 8608 roughness class. Top: accumulated height map across the lane with the four wheel paths. Middle: ISO-weighted vertical acceleration for quarter-car, measurement and RC-Scorer. Bottom: one-third-octave spectrum." loading="lazy" width="1900" height="879">
         <figcaption>
-          <strong>Fig. 2 — three surfaces from the offline split,</strong> one column
-          per ISO 8608 roughness class: A (smooth), B (typical) and C (rough).
-          <em>Top:</em> the accumulated height map across the lane with the four
-          wheel paths, the three panels sharing one height scale.
-          <em>Middle:</em> the ISO-weighted vertical acceleration that surface
-          produced. <em>Bottom:</em> its one-third-octave spectrum. Ahlin&ndash;Granlund
-          and the IRI regression carry no curve in the lower two rows: each produces
-          a single scalar per window, and no waveform exists from which MTVV, VDV or
-          the crest factor could be formed.
+          Three surfaces from the offline split, one column per ISO 8608 roughness
+          class. <em>Top:</em> the accumulated height map with the four wheel paths.
+          <em>Middle:</em> the ISO-weighted vertical acceleration. <em>Bottom:</em>
+          its one-third-octave spectrum. On the typical surface the quarter-car
+          oscillates at its own wheel-hop resonance near 10&nbsp;Hz, a peak several
+          times the measurement; Ahlin&ndash;Granlund and the IRI regression produce
+          one scalar per window and so carry no curve at all.
         </figcaption>
       </figure>
-      <p class="note wide">
-        On the smooth surface the one large event in the window is a patch of
-        roughness late in the run, and the prediction reproduces it rather than
-        averaging it away: RC-Scorer returns a<sub>w,z</sub>&nbsp;=&nbsp;0.165
-        against a measured 0.172&nbsp;m&thinsp;s<sup>&minus;2</sup>. On the typical
-        surface the quarter-car alone oscillates at its wheel-hop resonance near
-        10&nbsp;Hz, a peak several times the measured spectrum, and its weighted RMS
-        reaches 0.702 against a measurement of 0.269, where RC-Scorer stays at
-        0.253: putting a vehicle model in the loop puts that model's resonance into
-        the output. On the rough surface the prediction departs from the measurement
-        in shape, yet the combined value tracks it anyway (0.330 against
-        0.339&nbsp;m&thinsp;s<sup>&minus;2</sup>), because that shape error is
-        orthogonal to the combination.
-      </p>
 
-      <h3 class="sub">Table II — component ablation of the loss function</h3>
+      <h3 class="sub">Components of the loss</h3>
       <p class="lede wide">
-        The three components switched on and off. <strong>ISO-W</strong> applies the
-        ISO weighting to the training target, <strong>Band</strong> is the relative
-        band-energy term and <strong>Moment</strong> is the term on the
-        a<sub>v</sub> distribution. Columns run from no component to all three, and
-        the three middle columns each remove one term from the full configuration.
-        The row minimum is in bold.
+        <strong>ISO-W</strong> applies the ISO weighting to the training target,
+        <strong>Band</strong> is the relative band-energy term and
+        <strong>Moment</strong> is the term on the a<sub>v</sub> distribution. The
+        three middle columns each remove one term from the full configuration.
       </p>
       <div class="table-scroll">
         <table class="rtable">
           <caption class="sr-only">Component ablation of the loss function, MAE per row</caption>
           <thead>
             <tr>
-              <th scope="col" class="cfg">Configuration</th>
+              <th scope="col" class="cfg">Metric</th>
               <th scope="col" class="r cfg">none</th>
               <th scope="col" class="r cfg">ISO-W only</th>
               <th scope="col" class="r cfg">&minus; ISO-W</th>
@@ -434,7 +300,6 @@
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" colspan="7" class="cfg">Mean absolute error <span class="u">m s<sup>&minus;2</sup>, except VDV m/s<sup>1.75</sup> and the dimensionless crest factor</span></th></tr>
             <tr><th scope="row">a<sub>w,x</sub></th><td class="r">0.0332</td><td class="r">0.0525</td><td class="r">0.0410</td><td class="r">0.0425</td><td class="r">0.0332</td><td class="r em">0.0328</td></tr>
             <tr><th scope="row">a<sub>w,y</sub></th><td class="r">0.0254</td><td class="r">0.0316</td><td class="r">0.0647</td><td class="r">0.0301</td><td class="r">0.0236</td><td class="r em">0.0229</td></tr>
             <tr><th scope="row">a<sub>w,z</sub></th><td class="r">0.0670</td><td class="r">0.0612</td><td class="r">0.0699</td><td class="r">0.0454</td><td class="r">0.0396</td><td class="r em">0.0377</td></tr>
@@ -446,46 +311,37 @@
         </table>
       </div>
       <p class="note tfoot wide">
-        Applying the ISO weighting to the target <em>alone</em> hurts, raising
-        a<sub>v</sub> MAE from 0.0643 to 0.0814: the weighting changes the spectral
-        distribution of the target and no loss term reads that distribution. The
-        band log-ratio term is what reads it — adding it recovers the error to
-        0.0515, and removing it from the full configuration costs 0.0053. The moment
-        term buys a further 0.0070 on a<sub>v</sub> at a price visible in the lower
-        block, where the configuration without it is the more accurate on all three
-        descriptors: it matches the distribution of the reported quantity, which a
-        peak-based descriptor does not need.
+        Weighting the target alone hurts — no loss term reads the spectral
+        distribution it changes — and the band log-ratio term is what reads it. The
+        moment term then buys a further 0.0070 on a<sub>v</sub> at a price visible in
+        the lower block, where the configuration without it is the more accurate on
+        all three descriptors.
       </p>
 
-      <h3 class="sub">Test site</h3>
-      <p class="lede wide">
-        Every paired run was driven on the same course at a proving ground. Two
-        sections were used: a straight multi-lane section for the bump layouts, and
-        a narrow walled corridor for the pothole layout.
-      </p>
-      <figure class="figure">
-        <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
-        <figcaption>
-          <span class="tag tag--a">a</span>
-          Straight multi-lane section, driven north to south in lane 2 — the bump
-          layouts S1&ndash;S5.
-          <span class="tag tag--b">b</span>
-          Narrow walled corridor, driven south to north on the lane centre line —
-          the pothole layout S6.
-          <span class="credit">Satellite imagery: VWorld, Ministry of Land,
-          Infrastructure and Transport, Republic of Korea.</span>
-        </figcaption>
-      </figure>
+      <!-- ---------------------------------------------------- scenarios --- -->
+      <div id="scenario-block">
+        <h3 class="sub">Obstacle layouts</h3>
+        <p class="lede wide">
+          Six layouts, seen from above with the vehicle approaching from the left,
+          each putting a different question to the scorer. S1&ndash;S3 place speed
+          bumps under one or both wheel tracks and S6 potholes along one track, so
+          avoidance is available. S4 places bumps of unequal height at the same
+          station, where no candidate is clean. S5 places them between the wheel
+          tracks, where moving is the wrong answer.
+        </p>
+        <p class="path-key">
+          <span class="pk"><span class="pk-line pk-line--base"></span>scorer disabled</span>
+          <span class="pk"><span class="pk-line pk-line--comf"></span>scorer enabled</span>
+        </p>
+        <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
+      </div>
 
-      <h3 class="sub">Table III — closed loop on an autonomous vehicle</h3>
+      <h3 class="sub">Closed loop on the vehicle</h3>
       <p class="lede wide">
-        Six pairs, one per obstacle layout at a nominal
-        15&nbsp;km&thinsp;h<sup>&minus;1</sup>, with the scorer disabled and enabled
-        on the same course. The closed-loop criterion is a<sub>v</sub>, the quantity
-        RC-Scorer is scored on offline and the one the planner uses: reporting the
-        combined value charges the lateral and longitudinal acceleration produced by
-        the avoidance manoeuvre against the vertical improvement it buys, so the
-        reduction is what survives that trade.
+        Six pairs, one per layout at a nominal 15&nbsp;km&thinsp;h<sup>&minus;1</sup>,
+        scorer disabled and enabled on the same course. The criterion is
+        a<sub>v</sub>, so the lateral and longitudinal acceleration the avoidance
+        manoeuvre produces is charged against the vertical improvement it buys.
       </p>
       <div class="table-scroll">
         <table class="rtable">
@@ -495,7 +351,7 @@
               <th scope="col" rowspan="2">Cell</th>
               <th scope="col" class="r grp" colspan="3">axis-weighted RMS <span class="u">m s<sup>&minus;2</sup></span></th>
               <th scope="col" class="r grp" colspan="2">ISO 2631-1 a<sub>v</sub></th>
-              <th scope="col" class="r grp" colspan="3">shock descriptors and peak</th>
+              <th scope="col" class="r grp" colspan="2">shock descriptors</th>
             </tr>
             <tr>
               <th scope="col" class="r">a<sub>w,x</sub></th>
@@ -504,138 +360,69 @@
               <th scope="col" class="r">a<sub>v</sub></th>
               <th scope="col" class="r">&Delta;a<sub>v</sub></th>
               <th scope="col" class="r">MTVV<sub>z</sub></th>
-              <th scope="col" class="r">VDV<sub>z</sub> <span class="u">m/s<sup>1.75</sup></span></th>
-              <th scope="col" class="r">|a<sub>w,z</sub>|<sub>peak</sub></th>
+              <th scope="col" class="r">VDV<sub>z</sub></th>
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" colspan="9" class="cfg">Avoidance available</th></tr>
-            <tr><th scope="row">S1</th><td class="r">0.161 &rarr; 0.050</td><td class="r">0.552 &rarr; 0.205</td><td class="r">1.194 &rarr; 0.107</td><td class="r">1.325 &rarr; 0.236</td><td class="r em">&minus;82&thinsp;%</td><td class="r">1.926 &rarr; 0.145</td><td class="r">3.129 &rarr; 0.224</td><td class="r">6.085 &rarr; 0.390</td></tr>
-            <tr><th scope="row">S2</th><td class="r">0.164 &rarr; 0.042</td><td class="r">0.509 &rarr; 0.146</td><td class="r">0.880 &rarr; 0.076</td><td class="r">1.030 &rarr; 0.170</td><td class="r em">&minus;84&thinsp;%</td><td class="r">1.542 &rarr; 0.119</td><td class="r">2.999 &rarr; 0.183</td><td class="r">5.004 &rarr; 0.312</td></tr>
-            <tr><th scope="row">S3</th><td class="r">0.211 &rarr; 0.053</td><td class="r">0.600 &rarr; 0.249</td><td class="r">0.905 &rarr; 0.095</td><td class="r">1.107 &rarr; 0.272</td><td class="r em">&minus;75&thinsp;%</td><td class="r">1.604 &rarr; 0.155</td><td class="r">2.462 &rarr; 0.250</td><td class="r">4.066 &rarr; 0.475</td></tr>
-            <tr><th scope="row">S6</th><td class="r">0.128 &rarr; 0.049</td><td class="r">0.449 &rarr; 0.199</td><td class="r">0.927 &rarr; 0.094</td><td class="r">1.038 &rarr; 0.225</td><td class="r em">&minus;78&thinsp;%</td><td class="r">1.459 &rarr; 0.119</td><td class="r">2.217 &rarr; 0.172</td><td class="r">4.033 &rarr; 0.250</td></tr>
-            <tr><th scope="row" colspan="9" class="cfg">No clean candidate — partial by design</th></tr>
-            <tr><th scope="row">S4</th><td class="r">0.284 &rarr; 0.083</td><td class="r">0.546 &rarr; 0.250</td><td class="r">1.261 &rarr; 0.467</td><td class="r">1.374 &rarr; 0.536</td><td class="r">&minus;61&thinsp;%</td><td class="r">2.416 &rarr; 0.892</td><td class="r">3.398 &rarr; 1.355</td><td class="r">6.516 &rarr; 2.753</td></tr>
-            <tr><th scope="row" colspan="9" class="cfg">Moving is the wrong answer — center held</th></tr>
-            <tr><th scope="row">S5</th><td class="r">0.050 &rarr; 0.051</td><td class="r">0.023 &rarr; 0.022</td><td class="r">0.075 &rarr; 0.068</td><td class="r">0.093 &rarr; 0.088</td><td class="r">&minus;6&thinsp;%</td><td class="r">0.092 &rarr; 0.086</td><td class="r">0.135 &rarr; 0.126</td><td class="r">0.184 &rarr; 0.192</td></tr>
+            <tr><th scope="row" colspan="8" class="cfg">Avoidance available</th></tr>
+            <tr><th scope="row">S1</th><td class="r">0.161 &rarr; 0.050</td><td class="r">0.552 &rarr; 0.205</td><td class="r">1.194 &rarr; 0.107</td><td class="r">1.325 &rarr; 0.236</td><td class="r em">&minus;82&thinsp;%</td><td class="r">1.926 &rarr; 0.145</td><td class="r">3.129 &rarr; 0.224</td></tr>
+            <tr><th scope="row">S2</th><td class="r">0.164 &rarr; 0.042</td><td class="r">0.509 &rarr; 0.146</td><td class="r">0.880 &rarr; 0.076</td><td class="r">1.030 &rarr; 0.170</td><td class="r em">&minus;84&thinsp;%</td><td class="r">1.542 &rarr; 0.119</td><td class="r">2.999 &rarr; 0.183</td></tr>
+            <tr><th scope="row">S3</th><td class="r">0.211 &rarr; 0.053</td><td class="r">0.600 &rarr; 0.249</td><td class="r">0.905 &rarr; 0.095</td><td class="r">1.107 &rarr; 0.272</td><td class="r em">&minus;75&thinsp;%</td><td class="r">1.604 &rarr; 0.155</td><td class="r">2.462 &rarr; 0.250</td></tr>
+            <tr><th scope="row">S6</th><td class="r">0.128 &rarr; 0.049</td><td class="r">0.449 &rarr; 0.199</td><td class="r">0.927 &rarr; 0.094</td><td class="r">1.038 &rarr; 0.225</td><td class="r em">&minus;78&thinsp;%</td><td class="r">1.459 &rarr; 0.119</td><td class="r">2.217 &rarr; 0.172</td></tr>
+            <tr><th scope="row" colspan="8" class="cfg">No clean candidate — partial by design</th></tr>
+            <tr><th scope="row">S4</th><td class="r">0.284 &rarr; 0.083</td><td class="r">0.546 &rarr; 0.250</td><td class="r">1.261 &rarr; 0.467</td><td class="r">1.374 &rarr; 0.536</td><td class="r">&minus;61&thinsp;%</td><td class="r">2.416 &rarr; 0.892</td><td class="r">3.398 &rarr; 1.355</td></tr>
+            <tr><th scope="row" colspan="8" class="cfg">Moving is the wrong answer — center held</th></tr>
+            <tr><th scope="row">S5</th><td class="r">0.050 &rarr; 0.051</td><td class="r">0.023 &rarr; 0.022</td><td class="r">0.075 &rarr; 0.068</td><td class="r">0.093 &rarr; 0.088</td><td class="r">&minus;6&thinsp;%</td><td class="r">0.092 &rarr; 0.086</td><td class="r">0.135 &rarr; 0.126</td></tr>
           </tbody>
         </table>
       </div>
       <p class="note tfoot wide">
         The three axes are given beside a<sub>v</sub> so that a reduction produced by
-        the road can be told from one produced by the manoeuvre, and
-        &Delta;a<sub>v</sub> states the same change as the percentage the comfort
-        literature reports. MTVV and VDV are defined by ISO 2631-1 on a single
-        weighted axis, so only the vertical one is listed. In every pair the
-        evaluated intervals occupy the same longitudinal range. The weighted
-        vertical peak falls by 88&thinsp;% to 94&thinsp;% in the full-avoidance
-        layouts.
+        the road can be told from one produced by the manoeuvre. In S5 both runs keep
+        their wheels clear and the enabled scorer selects the center in all 75
+        recorded cycles; in S6 it shifts left by 0.47&nbsp;m on average. Scoring five
+        candidates takes 88&ndash;109&nbsp;ms on a Jetson AGX Orin.
       </p>
 
-      <h3 class="sub">Fig. 6 — closed-loop behaviour</h3>
       <figure class="figure figure--wide">
-        <img src="figures/fig6_closed_loop.png" alt="Three columns for S1, S4 and S6. Top: accumulated road-height grid in bird's-eye view with the driven paths, scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the center and the selected candidate highlighted." loading="lazy" width="1900" height="706">
+        <img src="figures/fig6_closed_loop.png" alt="Three columns for S1, S4 and S6. Top: accumulated road-height grid in bird's-eye view with the driven paths, scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone. Bottom: the per-candidate predicted a_v at the approach, with the center and the selected candidate highlighted." loading="lazy" width="1900" height="706">
         <figcaption>
-          <strong>Fig. 6 — closed-loop behaviour at
-          15&nbsp;km&thinsp;h<sup>&minus;1</sup>.</strong>
-          Each panel shows the accumulated road-height grid in bird's-eye view with
-          the trajectory driven with the scorer disabled and the one driven with it
-          enabled, the measured vertical acceleration over the obstacle zone, and
-          the per-candidate predicted a<sub>v</sub> at the approach. S6 overlays its
-          driven paths on a separately recorded reference height map.
+          Closed-loop behaviour at 15&nbsp;km&thinsp;h<sup>&minus;1</sup>. Each panel
+          shows the accumulated road-height grid with both driven trajectories, the
+          measured vertical acceleration over the obstacle zone, and the
+          per-candidate predicted a<sub>v</sub> at the approach.
         </figcaption>
       </figure>
 
-      <div class="cols cols--2 after-table">
-        <article>
-          <h3>S4 behaves as designed</h3>
-          <p>
-            With no clean candidate the planner moves toward the lower obstacle, and
-            a<sub>v</sub> falls 61&thinsp;% despite the absence of a clean choice.
-            The residual is the difference between striking a low bump and a high
-            one, not a failure to avoid.
-          </p>
-        </article>
-        <article>
-          <h3>S5 carries the negative case</h3>
-          <p>
-            Both runs keep their wheels clear of the bumps, with mean lateral
-            positions of &minus;0.063 and &minus;0.038&nbsp;m in the obstacle zone.
-            Across the approach and passage the enabled scorer selects the center in
-            all 75 recorded cycles, and the center has the lowest predicted
-            a<sub>v</sub> of the five candidates in 62 of them: the model scores the
-            center as the best option rather than being restrained from moving.
-          </p>
-        </article>
-        <article>
-          <h3>S6 demonstrates avoidance</h3>
-          <p>
-            The disabled run stays near the center, whereas the enabled run shifts
-            left by 0.47&nbsp;m on average in the obstacle zone (maximum
-            0.64&nbsp;m), reducing a<sub>v</sub> by 78&thinsp;%. The offset is
-            selected and applied on the approach and is reached in the zone after
-            the tracking delay.
-          </p>
-        </article>
-        <article>
-          <h3>Prediction against measurement</h3>
-          <p>
-            Over the 136 of 1,016 windows whose driven path and speed match the
-            scored candidate, the predicted-to-measured ratio is 0.994 in the 19
-            avoidance windows and 2.91 in the 65 center-holding windows, where the
-            measured level is near zero. These windows overlap and are not
-            independent — varying the lateral tolerance from 0.1&nbsp;m to
-            0.3&nbsp;m moves the avoidance ratio from 0.982 to 1.190 — so uniform
-            absolute accuracy under the onboard road input is not established.
-          </p>
-        </article>
-      </div>
-
-      <h3 class="sub">Computational performance</h3>
-      <p class="note wide">
-        The ride-comfort scorer ran on a Jetson AGX Orin using its embedded GPU,
-        while the remaining processes ran on a separate computer. Across six runs,
-        the median time required to score five candidate trajectories ranged from
-        88&nbsp;ms to 109&nbsp;ms.
-      </p>
+      <figure class="figure figure--mid">
+        <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
+        <figcaption>
+          <span class="tag tag--a">a</span>
+          Straight multi-lane section, driven north to south — the bump layouts
+          S1&ndash;S5.
+          <span class="tag tag--b">b</span>
+          Narrow walled corridor, driven south to north — the pothole layout S6.
+          <span class="credit">Satellite imagery: VWorld, Ministry of Land,
+          Infrastructure and Transport, Republic of Korea.</span>
+        </figcaption>
+      </figure>
 
       <h3 class="sub">Limitations</h3>
       <p class="note wide">
-        <strong>The closed-loop evaluation is small.</strong> Each reported cell
-        contains one disabled and one enabled run, so the reductions are point
-        estimates without repeatability estimates. Only the nominal
-        15&nbsp;km&thinsp;h<sup>&minus;1</sup> setting is reported; mean in-zone
-        speeds span 11.8 to 14.4&nbsp;km&thinsp;h<sup>&minus;1</sup>, with
-        within-pair differences no greater than 0.6&nbsp;km&thinsp;h<sup>&minus;1</sup>.
-        Inside the evaluated zone, a<sub>v</sub> includes the horizontal
-        acceleration of the manoeuvre. Avoidance changes travel time by at most
-        0.27&nbsp;s and lowers longitudinal and lateral jerk wherever the path
-        changed, but raises the RMS steering rate by a factor of 1.7 to 4.8; the
-        margin to the lane boundary is not measured.
-      </p>
-      <p class="note wide">
-        <strong>High-amplitude calibration and candidate ordering remain
-        unresolved.</strong> Untraversed candidates have no measured outcomes, so
-        their predicted ordering is not validated by the observed path changes. The
-        offline split is lower in amplitude than the obstacle zones (mean
-        a<sub>v</sub> of 0.3735 against 1.0 to
-        1.4&nbsp;m&thinsp;s<sup>&minus;2</sup>), so the closed-loop result supports
-        the ordering, not accuracy at those levels. No learning baseline or second
-        seed is run, so the gain is not split between the architecture and learning
-        from logs.
-      </p>
-      <p class="note wide">
-        <strong>The change of road input is shown to work, not
-        characterized.</strong> RC-Scorer is trained on post-processed profiles and
-        deployed on ones the vehicle accumulates at run time. Dropout, vertical
-        precision and resolution are not varied independently, so how accuracy falls
-        off with road-estimate quality is uncharacterized.
+        Each cell is one disabled and one enabled run, so the reductions are point
+        estimates, and only the nominal 15&nbsp;km&thinsp;h<sup>&minus;1</sup>
+        setting is reported. Untraversed candidates have no measured outcome, so the
+        predicted ordering is not validated by the observed path changes, and the
+        offline split is lower in amplitude than the obstacle zones — the closed-loop
+        result supports the ordering, not accuracy at those levels. The change of
+        road input is shown to work, not characterized: dropout, vertical precision
+        and resolution are not varied independently.
       </p>
     </div>
   </section>
 
   <!-- ======================================================= VIDEOS ======= -->
-  <section class="band" id="videos">
+  <section class="band band--alt" id="videos">
     <div class="wrap">
       <h2>Videos</h2>
       <p class="lede">
@@ -655,7 +442,7 @@
   </section>
 
   <!-- ======================================================= BIBTEX ======= -->
-  <section class="band band--alt" id="BibTeX">
+  <section class="band" id="BibTeX">
     <div class="wrap">
       <div class="prose">
       <h2>BibTeX</h2>
@@ -678,7 +465,7 @@
     <p class="credit">
       The authors acknowledge the use of Claude for drafting the text of the paper
       and for drafting and refactoring the analysis and plotting code, including the
-      code that renders Figs. 2 and 6 from measured data. No figure is an
+      code that renders two of its figures from measured data. No figure is an
       AI-generated image. All technical analyses, experiments, vehicle tests,
       results and conclusions were produced and verified by the authors.
     </p>
