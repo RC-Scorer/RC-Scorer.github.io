@@ -46,10 +46,18 @@ const SCENARIOS = [
 ];
 
 const RECORDINGS = [
-  // 아직 비어 있습니다. RCScoring 실차 영상을 web/videos/ 와 web/posters/ 에
-  // 넣고, 파일마다 아래 형식으로 한 줄씩 추가하세요.
-  //
-  // { id: "<videos/<id>.mp4 의 id>", clock: "11:20:10", seconds: 60,
-  //   scenario: "S1", run: "baseline", speed: 30, side: "left",
-  //   note: "", hidden: false },
+  // 3분할 합성본. 좌상 전방 카메라 / 좌하 실내 / 우측 RViz, 세 소스를 같은 시점에
+  // 맞춰 자른 것입니다. 실내 얼굴과 본넷 마크는 마스킹되어 있습니다.
+  { id: "scenario1", clock: "11:03", seconds: 30, scenario: "S1", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario2", clock: "12:28", seconds: 30, scenario: "S2", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario3", clock: "13:58", seconds: 29, scenario: "S3", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario4", clock: "14:08", seconds: 29, scenario: "S4", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario5", clock: "14:15", seconds: 29, scenario: "S5", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario6", clock: "14:24", seconds: 15, scenario: "S6", run: "comfort",
+    speed: 15, side: "", note: "", hidden: false },
 ];

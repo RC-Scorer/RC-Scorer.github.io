@@ -562,11 +562,13 @@ figcaption {
 .card { display: flex; flex-direction: column; gap: .65rem; }
 .card video {
   display: block; width: 100%; max-width: 100%;
-  aspect-ratio: 16 / 9;
+  /* the clips are three panels stacked into a 1432x1092 frame, so a 16/9 box
+     with object-fit:cover would crop the cabin panel away */
+  aspect-ratio: 1432 / 1092;
   background: #0c0d0f;
   border: 1px solid var(--line);
   border-radius: var(--r);
-  object-fit: cover;
+  object-fit: contain;
 }
 .card-meta { display: flex; flex-direction: column; gap: .35rem; }
 .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
