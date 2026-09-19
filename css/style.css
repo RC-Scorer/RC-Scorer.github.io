@@ -11,6 +11,7 @@
   --ink-2:    #55585f;
   --ink-3:    #8b8e95;
   --line:     #e4e4e2;
+  --alt:      #f2f5f6;
   --line-2:   #efefed;
   --accent:   #a8760a;
   --accent-2: #f4e9cf;
@@ -199,7 +200,10 @@ body {
   scroll-margin-top: 3.2rem;
 }
 .band + .band { border-top: 1px solid var(--line-2); }
-.band--alt, .band--dark { background: var(--ground); }
+/* the tinted band is what separates abstract / method / experiments / videos,
+   so it needs its own token — pointing it at --ground made every band white */
+.band--alt, .band--dark { background: var(--alt); }
+.band--alt + .band, .band + .band--alt { border-top: 0; }
 
 h2 {
   margin: 0 0 2.1rem;
