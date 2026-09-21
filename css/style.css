@@ -265,7 +265,8 @@ h3.sub:first-of-type { margin-top: 2rem; }
 }
 .cols--2 { grid-template-columns: repeat(2, 1fr); }
 .cols.after-table { margin-top: 2.5rem; }
-.cols h3 {
+.cols h3,
+.figrow__notes h3 {
   margin: 0 0 .5rem;
   font-family: var(--display);
   font-weight: 600;
@@ -273,7 +274,8 @@ h3.sub:first-of-type { margin-top: 2rem; }
   line-height: 1.3;
   letter-spacing: -.01em;
 }
-.cols p { margin: 0; color: var(--ink-2); font-size: .94rem; line-height: 1.65; }
+.cols p,
+.figrow__notes p { margin: 0; color: var(--ink-2); font-size: .94rem; line-height: 1.65; }
 
 .wide { max-width: none; }
 .justify p { text-align: justify; hyphens: auto; }
@@ -297,7 +299,8 @@ h3.sub:first-of-type { margin-top: 2rem; }
 /* a bottom margin so a figure never butts up against what follows; where the
    next element already carries a larger top margin the two collapse */
 .figure { margin: 0 auto 2.6rem; }
-.figure img {
+.figure img,
+.figure video {
   display: block;
   width: 100%;
   height: auto;
@@ -305,11 +308,34 @@ h3.sub:first-of-type { margin-top: 2rem; }
   border: 1px solid var(--line);
   border-radius: var(--r);
 }
+/* the teaser animation draws the pipeline one stage at a time on a white ground,
+   so it keeps the page's own background rather than a player's black */
+.teaser-video { background: #fff; }
 .figure--wide { position: relative; }
 /* figure widths are set per figure so a tall portrait diagram does not tower
    over the text while a wide, detailed one still gets the full measure */
 .figure--narrow { max-width: 660px; }
 .figure--mid    { max-width: 860px; }
+
+/* Two diagrams side by side in Method: the pipeline is wide (3.5:1) and the
+   model is tall (0.89:1), so the row breaks out past the prose measure — by
+   whatever the viewport has spare, up to 90px a side — and splits 3:2 rather
+   than in half, which would leave the pipeline's labels too small to read. */
+.figrow {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-template-areas: "flow  model"
+                       "notes model";
+  column-gap: clamp(1.25rem, 3vw, 2.25rem);
+  align-items: start;
+  margin-inline: calc(-1 * clamp(0px, (100vw - var(--wrap)) / 2, 90px));
+}
+.figrow__flow  { grid-area: flow; }
+.figrow__model { grid-area: model; }
+/* the model diagram is three times as tall as the pipeline, so the Method notes
+   sit under the pipeline and fill the column rather than leaving it half empty */
+.figrow__notes { grid-area: notes; display: grid; gap: 1.6rem; }
+.figrow .figure { max-width: none; margin-bottom: 1.8rem; }
 .northmark {
   position: absolute; top: 12px; right: 12px;
   padding: .25rem .5rem; border-radius: var(--r);
@@ -608,6 +634,10 @@ figcaption {
 }
 @media (max-width: 900px) {
   .cols { grid-template-columns: repeat(2, 1fr); }
+  /* below this the pipeline diagram's labels stop being legible in a column, so
+     the row unstacks into document order: pipeline, model, notes */
+  .figrow { grid-template-columns: 1fr; grid-template-areas: none; row-gap: 0; }
+  .figrow__flow, .figrow__model, .figrow__notes { grid-area: auto; }
 }
 @media (max-width: 620px) {
   .cols, .cols--2 { grid-template-columns: 1fr; }

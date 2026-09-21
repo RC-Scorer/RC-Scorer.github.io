@@ -55,7 +55,11 @@
 <section class="band teaser">
   <div class="wrap">
     <figure class="figure figure--wide">
-      <img src="figures/fig5_onboard_stack.png" alt="Onboard stack: lidar, GNSS/INS and wheel speed feed road surface mapping; the local elevation map and the lattice planner's candidates feed wheel-path profile extraction and RC-Scorer, whose ride comfort cost joins centerline, consistency and curvature in candidate selection" loading="eager" width="1900" height="543">
+      <video class="teaser-video" autoplay loop muted playsinline preload="metadata"
+             poster="posters/architecture.jpg" width="1920" height="1080"
+             aria-label="The onboard pipeline drawn one stage at a time: lidar, GNSS/INS and wheel speed feed road surface mapping; the local elevation map and the lattice planner's candidates feed wheel-path profile extraction and RC-Scorer, whose ride comfort cost joins centerline, consistency and curvature in candidate selection">
+        <source src="videos/rc_scorer_architecture.mp4" type="video/mp4">
+      </video>
       <figcaption>
         Lidar scans are deskewed and accumulated into a local elevation map of road
         height. The wheel-path profile is re-extracted under each candidate the
@@ -104,39 +108,52 @@
     <div class="wrap">
       <h2>Method</h2>
 
-      <figure class="figure figure--narrow">
-        <img src="figures/fig1_architecture.png" alt="RC-Scorer architecture: wheel speed and GNSS/INS form a state token; the wheel road profile and planner path form road embeddings split into past and current tokens; a causal Transformer encoder feeds an output head emitting weighted a_x, a_y and a_z waveforms, reduced to the ISO 2631-1 evaluation values" loading="lazy" width="1006" height="1125">
-        <figcaption>
-          The four wheel-path road channels and the candidate trajectory are
-          embedded as a sequence of along-path tokens, prefixed by a single token
-          carrying the vehicle state. Causal-masked encoder layers and an output
-          head emit the three-axis weighted acceleration waveform, from which the
-          ISO 2631-1 evaluation values follow — the weighted RMS of each axis,
-          their vibration total value a<sub>v</sub>, MTVV and VDV.
-        </figcaption>
-      </figure>
+      <div class="figrow">
+        <figure class="figure figrow__flow">
+          <img src="figures/fig5_onboard_stack.png" alt="Onboard stack: lidar, GNSS/INS and wheel speed feed road surface mapping; the local elevation map and the lattice planner's candidates feed wheel-path profile extraction and RC-Scorer, whose ride comfort cost joins centerline, consistency and curvature in candidate selection" loading="lazy" width="1900" height="543">
+          <figcaption>
+            The deployed pipeline. Lidar, GNSS/INS and wheel speed build the local
+            elevation map; RC-Scorer scores every lattice candidate from that
+            candidate's own wheel-path profile, and the ride-comfort cost is summed
+            with the centerline, consistency and curvature costs at selection.
+          </figcaption>
+        </figure>
 
-      <div class="cols cols--2">
-        <article>
-          <h3>No vehicle model anywhere in the chain</h3>
-          <p>
-            A causal mask stops future road geometry from explaining present
-            vibration. The encoder carries no explicit vehicle representation and no
-            vehicle-specific calibration: one learned model predicts all three axes
-            jointly, in place of a calibrated vehicle model for the vertical axis
-            and trajectory kinematics for the horizontal ones.
-          </p>
-        </article>
-        <article>
-          <h3>Scored per candidate, in the loop</h3>
-          <p>
-            Each planning cycle the road grid is re-sampled under every candidate's
-            own wheel paths, and the planner adds the predicted a<sub>v</sub> to its
-            centerline, consistency and curvature costs. The loss puts the reported
-            quantity in the objective: a waveform term, a relative band-energy term
-            and a moment term on the a<sub>v</sub> distribution.
-          </p>
-        </article>
+        <figure class="figure figrow__model">
+          <img src="figures/fig1_architecture.png" alt="RC-Scorer architecture: wheel speed and GNSS/INS form a state token; the wheel road profile and planner path form road embeddings split into past and current tokens; a causal Transformer encoder feeds an output head emitting weighted a_x, a_y and a_z waveforms, reduced to the ISO 2631-1 evaluation values" loading="lazy" width="1006" height="1125">
+          <figcaption>
+            The four wheel-path road channels and the candidate trajectory are
+            embedded as a sequence of along-path tokens, prefixed by a single token
+            carrying the vehicle state. Causal-masked encoder layers and an output
+            head emit the three-axis weighted acceleration waveform, from which the
+            ISO 2631-1 evaluation values follow — the weighted RMS of each axis,
+            their vibration total value a<sub>v</sub>, MTVV and VDV.
+          </figcaption>
+        </figure>
+
+        <div class="figrow__notes">
+          <article>
+            <h3>No vehicle model anywhere in the chain</h3>
+            <p>
+              A causal mask stops future road geometry from explaining present
+              vibration. The encoder carries no explicit vehicle representation and
+              no vehicle-specific calibration: one learned model predicts all three
+              axes jointly, in place of a calibrated vehicle model for the vertical
+              axis and trajectory kinematics for the horizontal ones.
+            </p>
+          </article>
+          <article>
+            <h3>Scored per candidate, in the loop</h3>
+            <p>
+              Each planning cycle the road grid is re-sampled under every
+              candidate's own wheel paths, and the planner adds the predicted
+              a<sub>v</sub> to its centerline, consistency and curvature costs. The
+              loss puts the reported quantity in the objective: a waveform term, a
+              relative band-energy term and a moment term on the a<sub>v</sub>
+              distribution.
+            </p>
+          </article>
+        </div>
       </div>
     </div>
   </section>
