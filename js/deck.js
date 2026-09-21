@@ -1,14 +1,21 @@
-/* Horizontal deck: one panel at a time, stepped with the arrow buttons, the
-   dots, the keyboard or a swipe.
+/* Horizontal deck: one panel at a time, stepped with the arrows beside the
+ * panel, the dots under it, the keyboard or a swipe.
  *
  * The track is a native scroll-snap container, so touch swiping, momentum and
  * the reduced-motion preference all come from the browser; the script only
- * moves the scroll position, mirrors it back into the dots and hides the arrow
- * that would do nothing. Decks whose panels are appended at runtime (the
- * scenario deck) are set up by calling initDecks() again after appending.
+ * moves the scroll position and mirrors it back into the dots. Stepping wraps
+ * around, so neither arrow is ever dead — a greyed-out arrow reads as broken
+ * rather than as "you are at the end".
+ *
+ * Decks whose panels are appended at runtime (the scenario deck) are set up by
+ * calling initDecks() again after appending.
  */
 (function (global) {
   "use strict";
+
+  var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+              '<path d="M15 4 L7 12 L15 20" fill="none" stroke="currentColor" ' +
+              'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -27,15 +34,21 @@
     deck.setAttribute("aria-roledescription", "carousel");
     deck.setAttribute("aria-label", label);
 
-    var bar = el("div", "deck__bar");
+    var stage = el("div", "deck__stage");
+    view.parentNode.insertBefore(stage, view);
+    stage.appendChild(view);
+
     var prev = el("button", "deck__arrow deck__arrow--prev");
     var next = el("button", "deck__arrow deck__arrow--next");
     prev.type = next.type = "button";
-    prev.innerHTML = "<span aria-hidden=\"true\">←</span>";
-    next.innerHTML = "<span aria-hidden=\"true\">→</span>";
+    prev.innerHTML = ARROW;
+    next.innerHTML = ARROW;
     prev.setAttribute("aria-label", "Previous, " + label);
     next.setAttribute("aria-label", "Next, " + label);
+    stage.insertBefore(prev, view);
+    stage.appendChild(next);
 
+    var foot = el("div", "deck__foot");
     var caption = el("p", "deck__label");
     var dots = el("div", "deck__dots");
 
@@ -46,36 +59,34 @@
         (s.getAttribute("data-title") || ""));
       var d = el("button", "deck__dot");
       d.type = "button";
-      d.setAttribute("aria-label", "Show " + (s.getAttribute("data-title") || ("panel " + (i + 1))));
+      d.setAttribute("aria-label",
+        "Show " + (s.getAttribute("data-title") || ("panel " + (i + 1))));
       d.addEventListener("click", function () { go(i); });
       dots.appendChild(d);
     });
 
-    bar.appendChild(prev);
-    bar.appendChild(caption);
-    bar.appendChild(dots);
-    bar.appendChild(next);
-    deck.insertBefore(bar, view);
+    foot.appendChild(dots);
+    foot.appendChild(caption);
+    deck.appendChild(foot);
+
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function index() {
       return Math.round(view.scrollLeft / view.clientWidth);
     }
-    var still = window.matchMedia("(prefers-reduced-motion: reduce)");
     function go(i) {
-      i = Math.max(0, Math.min(slides.length - 1, i));
+      i = (i + slides.length) % slides.length;          // wrap at both ends
       view.scrollTo({ left: i * view.clientWidth,
                       behavior: still.matches ? "auto" : "smooth" });
     }
     function sync() {
       var i = index();
-      caption.textContent = (i + 1) + " / " + slides.length + " \u00b7 " +
+      caption.textContent = (i + 1) + " / " + slides.length + " · " +
         (slides[i].getAttribute("data-title") || "");
       [].forEach.call(dots.children, function (d, k) {
         d.classList.toggle("is-on", k === i);
         d.setAttribute("aria-current", k === i ? "true" : "false");
       });
-      prev.disabled = i === 0;
-      next.disabled = i === slides.length - 1;
     }
 
     prev.addEventListener("click", function () { go(index() - 1); });
@@ -86,14 +97,9 @@
     });
 
     var tick;
-    view.addEventListener("scroll", function () {
-      clearTimeout(tick);
-      tick = setTimeout(sync, 60);
-    });
-    window.addEventListener("resize", function () {
-      clearTimeout(tick);
-      tick = setTimeout(sync, 120);
-    });
+    function later(ms) { clearTimeout(tick); tick = setTimeout(sync, ms); }
+    view.addEventListener("scroll", function () { later(60); });
+    window.addEventListener("resize", function () { later(120); });
 
     deck.setAttribute("data-deck-ready", "");
     sync();

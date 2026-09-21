@@ -530,51 +530,44 @@ figcaption {
 /* A native scroll-snap track, so a swipe, momentum and the reduced-motion
    preference are the browser's job; deck.js only steps the scroll position and
    mirrors it into the dots. Without the script the track is still a scroller
-   showing the first panel, so the content is never hidden. */
-.deck { margin: 0 0 2.6rem; }
-.deck__bar {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  margin-bottom: 1.2rem;
-  padding-bottom: .7rem;
-  border-bottom: 1px solid var(--line);
+   showing the first panel, so the content is never hidden.
+
+   The arrows sit beside the panel rather than in a toolbar above it: the deck
+   pulls into whatever side space the viewport has spare and reserves a gutter
+   for them, so they land next to the figure instead of on top of it. */
+.deck {
+  margin: 0 0 2.6rem;
+  margin-inline: calc(-1 * clamp(0px, (100vw - var(--wrap)) / 2, 72px));
 }
-.deck__label {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--mono);
-  font-size: .72rem;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+.deck__stage {
+  position: relative;
+  padding-inline: clamp(2.75rem, 5vw, 4rem);
 }
 .deck__arrow {
-  flex: none;
-  width: 2rem; height: 2rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 2.75rem; height: 2.75rem;
   display: grid; place-items: center;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: transparent;
+  background: var(--ground);
   color: var(--ink-2);
-  font-size: 1rem; line-height: 1;
+  box-shadow: 0 1px 6px rgba(16, 20, 26, .10);
   cursor: pointer;
+  transition: color .15s, border-color .15s, box-shadow .15s;
 }
-.deck__arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.deck__arrow:disabled { opacity: .3; cursor: default; }
-.deck__dots { flex: none; display: flex; gap: .4rem; }
-.deck__dot {
-  width: .5rem; height: .5rem;
-  padding: 0; border: 0; border-radius: 999px;
-  background: var(--ink-3); opacity: .35;
-  cursor: pointer;
+.deck__arrow svg { width: 1.35rem; height: 1.35rem; display: block; }
+.deck__arrow--prev { left: 0; }
+.deck__arrow--next { right: 0; }
+.deck__arrow--next svg { transform: scaleX(-1); }
+.deck__arrow:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 2px 10px rgba(16, 20, 26, .16);
 }
-.deck__dot.is-on { opacity: 1; background: var(--accent); }
 .deck__viewport {
   display: grid;
   grid-auto-flow: column;
@@ -585,11 +578,44 @@ figcaption {
   -ms-overflow-style: none;
 }
 .deck__viewport::-webkit-scrollbar { display: none; }
-.deck__slide { scroll-snap-align: start; min-width: 0; }
+/* panels share the tallest panel's height, so each one centres its own content
+   instead of hanging from the top of the row */
+.deck__slide {
+  scroll-snap-align: start;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .deck__slide > :last-child { margin-bottom: 0; }
 .deck__slide .figure { margin-bottom: 0; }
 .deck__slide .sc-title { margin: 0 0 .3rem; color: var(--ink); }
 .deck__slide .sc-title .code { margin-right: .5rem; }
+
+.deck__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .55rem;
+  margin-top: 1.5rem;
+}
+.deck__dots { display: flex; gap: .45rem; }
+.deck__dot {
+  width: .5rem; height: .5rem;
+  padding: 0; border: 0; border-radius: 999px;
+  background: var(--ink-3); opacity: .35;
+  cursor: pointer;
+}
+.deck__dot.is-on { opacity: 1; background: var(--accent); }
+.deck__label {
+  margin: 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
 
 /* --- filters ------------------------------------------------------------- */
 
@@ -707,6 +733,16 @@ figcaption {
 }
 @media (max-width: 620px) {
   .cols, .cols--2 { grid-template-columns: 1fr; }
+  /* no room for a side gutter here: the arrows join the dots under the panel */
+  .deck__stage { padding-inline: 0; }
+  .deck__arrow {
+    position: static;
+    transform: none;
+    width: 2.4rem; height: 2.4rem;
+  }
+  .deck__stage { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+  .deck__viewport { order: -1; flex: 1 0 100%; }
+  .deck__stage { justify-content: center; }
 }
 @media (max-width: 560px) {
   .grid { grid-template-columns: 1fr; }
