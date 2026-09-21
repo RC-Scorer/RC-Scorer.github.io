@@ -562,27 +562,23 @@ figcaption {
 
 /* --- recordings ---------------------------------------------------------- */
 
-/* Two cards across rather than three: each card carries its scenario diagram
-   as well as the clip, and the diagram is a 5:1 strip that turns illegible
-   below about 400px of width. */
+/* One clip per row, full measure: the footage on the left and the plan view of
+   the obstacle layout it is driving through on the right. The diagram is a 5:1
+   strip, so beside a 4:3 clip it can only ever be a band — it gets the widest
+   column the row can spare and sits on the clip's vertical centre. */
 .grid {
   list-style: none; margin: 0; padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 1.75rem 1.25rem;
+  grid-template-columns: 1fr;
+  gap: 2.4rem;
 }
-/* the cap only bites once the grid is down to one column: it keeps a single
-   wide card from blowing the clip up to the full measure */
 .card {
-  display: flex; flex-direction: column; gap: .65rem;
-  width: 100%; max-width: 620px; margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 1.6rem;
+  align-items: center;
 }
-
-/* clip and diagram share one frame: the plan view of the obstacle layout sits
-   directly under the footage, same width, divided only by a hairline, so the
-   pair reads as a single object rather than two stacked pictures */
-.card-media {
-  display: flex; flex-direction: column;
+.card-clip {
   border: 1px solid var(--line);
   border-radius: var(--r);
   overflow: hidden;
@@ -596,15 +592,22 @@ figcaption {
   background: #0c0d0f;
   object-fit: contain;
 }
-.card-fig { margin: 0; border-top: 1px solid var(--line); background: var(--ground); }
+.card-side { display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
+.card-fig {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--ground);
+}
 .card-fig img {
   display: block; width: 100%; height: auto;
-  /* the six strips differ by a pixel or two in height; a fixed box keeps the
-     cards in a row level and stops the lazy image shifting the badges */
+  /* the six strips differ by a pixel or two in height; a fixed box stops the
+     lazy image shifting the badges under it as it loads */
   aspect-ratio: 1400 / 282;
   object-fit: cover;
 }
-.card-meta { display: flex; flex-direction: column; gap: .35rem; }
+.card-meta { display: flex; flex-direction: column; gap: .5rem; }
 .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
 .card-id { font-family: var(--mono); font-size: .84rem; font-variant-numeric: tabular-nums; }
 .card-dur {
@@ -667,9 +670,9 @@ figcaption {
 @media (max-width: 620px) {
   .cols, .cols--2 { grid-template-columns: 1fr; }
 }
-@media (max-width: 880px) {
-  /* below two full-width cards the track would overflow its 400px minimum */
-  .grid { grid-template-columns: 1fr; }
+@media (max-width: 760px) {
+  /* no room for a side column: the diagram drops under its clip */
+  .card { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

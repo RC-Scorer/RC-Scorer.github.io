@@ -148,9 +148,10 @@
     var li = el("li", "card");
     var sc = r.scenario ? byCode[r.scenario] : null;
 
-    /* The clip and the scenario diagram sit in one bordered block: the plan
-       view of the obstacle layout reads as the base plate under the footage. */
-    var media = el("div", "card-media");
+    /* One clip per row, full width, with the scenario's plan view beside it:
+       the footage on the left, the obstacle layout it is driving through on
+       the right, so the two read together. */
+    var clip = el("div", "card-clip");
 
     var v = document.createElement("video");
     v.controls = true;
@@ -162,8 +163,10 @@
     src.src = "videos/" + r.id + ".mp4";
     src.type = "video/mp4";
     v.appendChild(src);
-    media.appendChild(v);
+    clip.appendChild(v);
+    li.appendChild(clip);
 
+    var side = el("div", "card-side");
     if (sc && sc.image) {
       var fig = el("figure", "card-fig");
       var img = document.createElement("img");
@@ -173,9 +176,8 @@
       img.height = 282;
       img.alt = "Overhead diagram of scenario " + sc.code + ": " + sc.title;
       fig.appendChild(img);
-      media.appendChild(fig);
+      side.appendChild(fig);
     }
-    li.appendChild(media);
 
     var meta = el("div", "card-meta");
 
@@ -200,8 +202,12 @@
     meta.appendChild(badges);
 
     if (r.note) meta.appendChild(el("p", "card-note", r.note));
+    /* the scenario's own line, so the column beside the clip says what the
+       layout in the diagram above it is testing */
+    else if (sc && sc.detail) meta.appendChild(el("p", "card-note", sc.detail));
 
-    li.appendChild(meta);
+    side.appendChild(meta);
+    li.appendChild(side);
     return li;
   }
 
