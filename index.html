@@ -163,30 +163,19 @@
     <div class="wrap">
       <h2>Experiments</h2>
 
-      <div class="cols cols--2">
-        <article>
-          <h3>Offline</h3>
-          <p>
-            CARD, a multi-country road dataset giving four-wheel contact-point
-            height, the planned trajectory and synchronised IMU together. The
-            held-out split is 29 sequences and 13,875 windows, grouped by trajectory
-            overlap so no road appears on both sides. All methods share one
-            weighting implementation and identical wheel-path inputs.
-          </p>
-        </article>
-        <article>
-          <h3>Closed loop</h3>
-          <p>
-            An autonomous Hyundai Ioniq 5 with a roof-mounted 128-channel lidar and
-            an RTK-GNSS/INS for ground truth. A lattice planner emits five
-            candidates at lateral offsets 0, &plusmn;1.25 and &plusmn;2.5&nbsp;m.
-            RC-Scorer reads the road profile the vehicle accumulates as it drives,
-            not the post-processed one it was trained on.
-          </p>
-        </article>
-      </div>
+      <h3 class="sub">Offline</h3>
+      <p class="lede wide">
+        CARD, a multi-country road dataset giving four-wheel contact-point height,
+        the planned trajectory and synchronised IMU together. The held-out split is
+        29 sequences and 13,875 windows, grouped by trajectory overlap so no road
+        appears on both sides. All methods share one weighting implementation and
+        identical wheel-path inputs.
+      </p>
 
-      <h3 class="sub">Accuracy against the baselines</h3>
+      <div class="deck" data-deck data-deck-label="Offline results">
+        <div class="deck__viewport">
+
+      <section class="deck__slide" data-title="Accuracy against the baselines">
       <p class="lede wide">
         Mean absolute error on the offline validation split. <code>QC-G</code> and
         <code>QC-C</code> are a quarter-car with golden-car and with calibrated
@@ -239,7 +228,9 @@
         quarter-car. The MLP, trained with the same hyperparameters and 3.3 times
         the parameters, reaches 0.1188.
       </p>
+      </section>
 
+      <section class="deck__slide" data-title="Predicted waveforms and spectra">
       <figure class="figure figure--wide">
         <img src="figures/fig2_surfaces.png" alt="Three columns, one per ISO 8608 roughness class. Top: accumulated height map across the lane with the four wheel paths. Middle: ISO-weighted longitudinal, lateral and vertical acceleration, measured and predicted. Bottom: one-third-octave spectrum of each axis." loading="lazy" width="1900" height="1407">
         <figcaption>
@@ -253,64 +244,61 @@
         </figcaption>
       </figure>
 
-      <h3 class="sub">What the loss and the road input contribute</h3>
-      <p class="lede wide">
-        The three loss components switched on and off, mean absolute error.
-        <strong>ISO-W</strong> weights the training target, <strong>Band</strong> is
-        the relative band-energy term and <strong>Moment</strong> is the term on the
-        a<sub>v</sub> distribution.
-      </p>
-      <div class="table-scroll">
-        <table class="rtable">
-          <caption class="sr-only">Loss component ablation, mean absolute error</caption>
-          <thead>
-            <tr>
-              <th scope="col" class="cfg">Metric</th>
-              <th scope="col" class="r cfg">none</th>
-              <th scope="col" class="r cfg">ISO-W only</th>
-              <th scope="col" class="r cfg">&minus; ISO-W</th>
-              <th scope="col" class="r cfg">&minus; Band</th>
-              <th scope="col" class="r cfg">&minus; Moment</th>
-              <th scope="col" class="r cfg em">full</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">a<sub>w,x</sub></th><td class="r">0.0348</td><td class="r">0.0490</td><td class="r">0.0471</td><td class="r">0.0431</td><td class="r em">0.0325</td><td class="r">0.0334</td></tr>
-            <tr><th scope="row">a<sub>w,y</sub></th><td class="r">0.0238</td><td class="r">0.0333</td><td class="r">0.0803</td><td class="r">0.0312</td><td class="r">0.0237</td><td class="r em">0.0227</td></tr>
-            <tr><th scope="row">a<sub>w,z</sub></th><td class="r">0.0680</td><td class="r">0.0627</td><td class="r">0.0859</td><td class="r">0.0458</td><td class="r">0.0404</td><td class="r em">0.0383</td></tr>
-            <tr><th scope="row">a<sub>v</sub></th><td class="r">0.0659</td><td class="r">0.0814</td><td class="r">0.0940</td><td class="r">0.0504</td><td class="r">0.0515</td><td class="r em">0.0449</td></tr>
-          </tbody>
-        </table>
+      </section>
+
+        </div>
       </div>
-      <p class="note tfoot wide">
-        Weighting the target alone hurts — no loss term reads the spectral
-        distribution it changes — and the band log-ratio term is what reads it.
-        Removing the road input instead and retraining raises the a<sub>v</sub>
-        error from 0.0449 to 0.0726, and all three axes worsen, so the horizontal
-        prediction draws on the road and not on speed and curvature alone. Simply
-        holding the weighted RMS of the preceding 2&nbsp;s scores 0.1384: the
-        accuracy comes from the road ahead rather than from extending the vibration
-        just measured.
+
+      <h3 class="sub">Closed loop</h3>
+      <p class="lede wide">
+        An autonomous Hyundai Ioniq 5 with a roof-mounted 128-channel lidar and an
+        RTK-GNSS/INS for ground truth. A lattice planner emits five candidates at
+        lateral offsets 0, &plusmn;1.25 and &plusmn;2.5&nbsp;m. RC-Scorer reads the
+        road profile the vehicle accumulates as it drives, not the post-processed
+        one it was trained on.
       </p>
 
       <!-- ---------------------------------------------------- scenarios --- -->
       <div id="scenario-block">
-        <h3 class="sub">Obstacle scenarios</h3>
         <p class="lede wide">
-          Six scenarios, seen from above with the vehicle approaching from the left.
-          S1&ndash;S3 place speed bumps under one or both wheel tracks and S6
-          potholes along one track, so avoidance is available. S4 places bumps of
-          unequal height at the same station, where no candidate is clean. S5 places
-          them between the wheel tracks, where moving is the wrong answer.
+          The proving ground and the six obstacle scenarios, seen from above with
+          the vehicle approaching from the left. S1&ndash;S3 place speed bumps under
+          one or both wheel tracks and S6 potholes along one track, so avoidance is
+          available. S4 places bumps of unequal height at the same station, where no
+          candidate is clean. S5 places them between the wheel tracks, where moving
+          is the wrong answer.
         </p>
         <p class="path-key">
           <span class="pk"><span class="pk-line pk-line--base"></span>scorer disabled</span>
           <span class="pk"><span class="pk-line pk-line--comf"></span>scorer enabled</span>
         </p>
-        <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
+
+        <div class="deck" data-deck data-deck-label="Test site and obstacle scenarios">
+          <div class="deck__viewport" id="scenario-deck">
+            <section class="deck__slide" data-title="Proving ground">
+              <figure class="figure figure--mid">
+                <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
+                <figcaption>
+                  <span class="tag tag--a">a</span>
+                  Straight multi-lane section, driven north to south — the bump
+                  scenarios S1&ndash;S5.
+                  <span class="tag tag--b">b</span>
+                  Narrow walled corridor, driven south to north — the pothole
+                  scenario S6.
+                  <span class="credit">Satellite imagery: VWorld, Ministry of Land,
+                  Infrastructure and Transport, Republic of Korea.</span>
+                </figcaption>
+              </figure>
+            </section>
+            <!-- one slide per scenario, appended by app.js -->
+          </div>
+        </div>
       </div>
 
-      <h3 class="sub">Closed loop on the vehicle</h3>
+      <div class="deck" data-deck data-deck-label="Closed-loop results">
+        <div class="deck__viewport">
+
+      <section class="deck__slide" data-title="Paired disabled / enabled runs">
       <p class="lede wide">
         Six pairs, one per scenario at a nominal 15&nbsp;km&thinsp;h<sup>&minus;1</sup>,
         scorer disabled and enabled on the same course. The criterion is
@@ -359,7 +347,9 @@
         average. Scoring five candidates takes 88&ndash;109&nbsp;ms on a Jetson AGX
         Orin, of which the network itself is 7&ndash;9&nbsp;ms.
       </p>
+      </section>
 
+      <section class="deck__slide" data-title="Road grid, measured vibration and candidate scores">
       <figure class="figure figure--wide">
         <img src="figures/fig6_closed_loop.png" alt="Three columns for S1, S4 and S6. Top: accumulated road-height grid in bird's-eye view with the driven paths, scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone. Bottom: the per-candidate predicted a_v at the approach, with the center and the selected candidate highlighted." loading="lazy" width="1900" height="705">
         <figcaption>
@@ -369,19 +359,10 @@
           per-candidate predicted a<sub>v</sub> at the approach.
         </figcaption>
       </figure>
+      </section>
 
-      <figure class="figure figure--mid">
-        <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
-        <figcaption>
-          <span class="tag tag--a">a</span>
-          Straight multi-lane section, driven north to south — the bump scenarios
-          S1&ndash;S5.
-          <span class="tag tag--b">b</span>
-          Narrow walled corridor, driven south to north — the pothole scenario S6.
-          <span class="credit">Satellite imagery: VWorld, Ministry of Land,
-          Infrastructure and Transport, Republic of Korea.</span>
-        </figcaption>
-      </figure>
+        </div>
+      </div>
 
       <h3 class="sub">Limitations</h3>
       <p class="note wide">
@@ -453,5 +434,6 @@
 
 <script src="data/recordings.js"></script>
 <script src="js/app.js"></script>
+<script src="js/deck.js"></script>
 </body>
 </html>

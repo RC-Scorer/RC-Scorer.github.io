@@ -43,23 +43,27 @@
     || document.getElementById("scenarios");
   if (!scenarios.length && scenarioSection) scenarioSection.hidden = true;
 
-  var list = document.getElementById("scenario-list");
-  var lastGroup = null;
+  var deck = document.getElementById("scenario-deck");
   scenarios.forEach(function (s) {
-    if (s.group && s.group !== lastGroup) {
-      lastGroup = s.group;
-      var g = el("li", "sc-group", s.group);
-      g.setAttribute("role", "presentation");
-      list.appendChild(g);
+    var slide = el("section", "deck__slide");
+    slide.setAttribute("data-title",
+      s.code + " \u00b7 " + s.title + (s.group ? " (" + s.group + ")" : ""));
+
+    var fig = el("figure", "figure figure--mid");
+    if (s.image) {
+      var img = document.createElement("img");
+      img.src = s.image;
+      img.loading = "lazy";
+      img.alt = "Overhead diagram of scenario " + s.code + ": " + s.title;
+      fig.appendChild(img);
     }
 
-    var li = el("li", "sc" + (s.image ? "" : " sc--noimg"));
-
-    var head = el("div", "sc-head");
-    head.appendChild(el("span", "code", s.code));
-    var txt = el("div", "sc-text");
-    txt.appendChild(el("h3", "sc-title", s.title));
-    txt.appendChild(el("p", "sc-detail", s.detail));
+    var cap = el("figcaption");
+    var title = el("p", "sc-title");
+    title.appendChild(el("span", "code", s.code));
+    title.appendChild(document.createTextNode(" " + s.title));
+    cap.appendChild(title);
+    cap.appendChild(el("p", "sc-detail", s.detail));
 
     var meta = el("p", "sc-meta");
     var sp = el("span", "num");
@@ -69,23 +73,14 @@
     var n = countFor(s.code);
     meta.appendChild(el("span", "num n-clips" + (n ? "" : " n-zero"),
       n ? n + (n === 1 ? " clip" : " clips") : "no clips yet"));
-    txt.appendChild(meta);
+    cap.appendChild(meta);
 
-    head.appendChild(txt);
-
-    if (s.image) {
-      var fig = el("figure", "sc-fig");
-      var img = document.createElement("img");
-      img.src = s.image;
-      img.loading = "lazy";
-      img.alt = "Overhead diagram of scenario " + s.code + ": " + s.title;
-      fig.appendChild(img);
-      li.appendChild(fig);
-    }
-
-    li.appendChild(head);
-    list.appendChild(li);
+    fig.appendChild(cap);
+    slide.appendChild(fig);
+    deck.appendChild(slide);
   });
+  /* deck.js wires up the arrows once the slides above are in the DOM */
+  if (typeof initDecks === "function") initDecks();
 
   /* --- filters ---------------------------------------------------------- */
   var state = { scenario: "all", run: "all" };

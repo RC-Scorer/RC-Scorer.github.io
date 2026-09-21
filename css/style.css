@@ -525,6 +525,72 @@ figcaption {
 .contrib li { align-items: flex-start; }
 .contrib .odd-key { padding-top: .25rem; }
 
+/* --- deck (one panel at a time) ------------------------------------------ */
+
+/* A native scroll-snap track, so a swipe, momentum and the reduced-motion
+   preference are the browser's job; deck.js only steps the scroll position and
+   mirrors it into the dots. Without the script the track is still a scroller
+   showing the first panel, so the content is never hidden. */
+.deck { margin: 0 0 2.6rem; }
+.deck__bar {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: .7rem;
+  border-bottom: 1px solid var(--line);
+}
+.deck__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.deck__arrow {
+  flex: none;
+  width: 2rem; height: 2rem;
+  display: grid; place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 1rem; line-height: 1;
+  cursor: pointer;
+}
+.deck__arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.deck__arrow:disabled { opacity: .3; cursor: default; }
+.deck__dots { flex: none; display: flex; gap: .4rem; }
+.deck__dot {
+  width: .5rem; height: .5rem;
+  padding: 0; border: 0; border-radius: 999px;
+  background: var(--ink-3); opacity: .35;
+  cursor: pointer;
+}
+.deck__dot.is-on { opacity: 1; background: var(--accent); }
+.deck__viewport {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.deck__viewport::-webkit-scrollbar { display: none; }
+.deck__slide { scroll-snap-align: start; min-width: 0; }
+.deck__slide > :last-child { margin-bottom: 0; }
+.deck__slide .figure { margin-bottom: 0; }
+.deck__slide .sc-title { margin: 0 0 .3rem; color: var(--ink); }
+.deck__slide .sc-title .code { margin-right: .5rem; }
+
 /* --- filters ------------------------------------------------------------- */
 
 .filters {
