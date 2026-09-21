@@ -146,6 +146,11 @@
 
   function card(r) {
     var li = el("li", "card");
+    var sc = r.scenario ? byCode[r.scenario] : null;
+
+    /* The clip and the scenario diagram sit in one bordered block: the plan
+       view of the obstacle layout reads as the base plate under the footage. */
+    var media = el("div", "card-media");
 
     var v = document.createElement("video");
     v.controls = true;
@@ -157,7 +162,20 @@
     src.src = "videos/" + r.id + ".mp4";
     src.type = "video/mp4";
     v.appendChild(src);
-    li.appendChild(v);
+    media.appendChild(v);
+
+    if (sc && sc.image) {
+      var fig = el("figure", "card-fig");
+      var img = document.createElement("img");
+      img.src = sc.image;
+      img.loading = "lazy";
+      img.width = 1400;
+      img.height = 282;
+      img.alt = "Overhead diagram of scenario " + sc.code + ": " + sc.title;
+      fig.appendChild(img);
+      media.appendChild(fig);
+    }
+    li.appendChild(media);
 
     var meta = el("div", "card-meta");
 
@@ -167,9 +185,8 @@
     meta.appendChild(top);
 
     var badges = el("div", "badges");
-    if (r.scenario && byCode[r.scenario]) {
-      var b = el("span", "badge badge--sc", r.scenario + " · " + byCode[r.scenario].title);
-      badges.appendChild(b);
+    if (sc) {
+      badges.appendChild(el("span", "badge badge--sc", sc.code + " · " + sc.title));
     } else {
       badges.appendChild(el("span", "badge badge--todo", "unassigned"));
     }

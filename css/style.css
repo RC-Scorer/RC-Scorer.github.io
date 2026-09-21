@@ -562,22 +562,47 @@ figcaption {
 
 /* --- recordings ---------------------------------------------------------- */
 
+/* Two cards across rather than three: each card carries its scenario diagram
+   as well as the clip, and the diagram is a 5:1 strip that turns illegible
+   below about 400px of width. */
 .grid {
   list-style: none; margin: 0; padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 1.6rem 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.75rem 1.25rem;
 }
-.card { display: flex; flex-direction: column; gap: .65rem; }
+/* the cap only bites once the grid is down to one column: it keeps a single
+   wide card from blowing the clip up to the full measure */
+.card {
+  display: flex; flex-direction: column; gap: .65rem;
+  width: 100%; max-width: 620px; margin-inline: auto;
+}
+
+/* clip and diagram share one frame: the plan view of the obstacle layout sits
+   directly under the footage, same width, divided only by a hairline, so the
+   pair reads as a single object rather than two stacked pictures */
+.card-media {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--ground);
+}
 .card video {
   display: block; width: 100%; max-width: 100%;
   /* the clips are three panels stacked into a 1432x1092 frame, so a 16/9 box
      with object-fit:cover would crop the cabin panel away */
   aspect-ratio: 1432 / 1092;
   background: #0c0d0f;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
   object-fit: contain;
+}
+.card-fig { margin: 0; border-top: 1px solid var(--line); background: var(--ground); }
+.card-fig img {
+  display: block; width: 100%; height: auto;
+  /* the six strips differ by a pixel or two in height; a fixed box keeps the
+     cards in a row level and stops the lazy image shifting the badges */
+  aspect-ratio: 1400 / 282;
+  object-fit: cover;
 }
 .card-meta { display: flex; flex-direction: column; gap: .35rem; }
 .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
@@ -642,7 +667,8 @@ figcaption {
 @media (max-width: 620px) {
   .cols, .cols--2 { grid-template-columns: 1fr; }
 }
-@media (max-width: 560px) {
+@media (max-width: 880px) {
+  /* below two full-width cards the track would overflow its 400px minimum */
   .grid { grid-template-columns: 1fr; }
 }
 
