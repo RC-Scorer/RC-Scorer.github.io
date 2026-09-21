@@ -145,29 +145,6 @@ body {
 
 /* key figures under the masthead ------------------------------------------- */
 
-.spec {
-  display: flex; flex-wrap: wrap; justify-content: center;
-  gap: .9rem 2.5rem;
-  margin: 2.25rem 0 0;
-  padding-top: 1.6rem;
-  border-top: 1px solid var(--line);
-}
-.spec > div { display: flex; align-items: baseline; gap: .5rem; }
-.spec dt {
-  font-family: var(--mono);
-  font-size: .68rem;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.spec dd {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: .95rem;
-  font-variant-numeric: tabular-nums;
-}
-
 /* --- section nav --------------------------------------------------------- */
 
 .secnav {
@@ -317,7 +294,9 @@ h3.sub:first-of-type { margin-top: 2rem; }
 
 /* --- figures ------------------------------------------------------------- */
 
-.figure { margin: 0 auto; }
+/* a bottom margin so a figure never butts up against what follows; where the
+   next element already carries a larger top margin the two collapse */
+.figure { margin: 0 auto 2.6rem; }
 .figure img {
   display: block;
   width: 100%;
@@ -635,7 +614,6 @@ figcaption {
 }
 @media (max-width: 560px) {
   .grid { grid-template-columns: 1fr; }
-  .spec { gap: .7rem 1.4rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
