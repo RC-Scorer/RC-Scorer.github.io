@@ -172,10 +172,7 @@
         identical wheel-path inputs.
       </p>
 
-      <div class="deck" data-deck data-deck-label="Offline results">
-        <div class="deck__viewport">
-
-      <section class="deck__slide" data-title="Accuracy against the baselines">
+      <h3 class="sub">Accuracy against the baselines</h3>
       <p class="lede wide">
         Mean absolute error on the offline validation split. <code>QC-G</code> and
         <code>QC-C</code> are a quarter-car with golden-car and with calibrated
@@ -228,9 +225,7 @@
         quarter-car. The MLP, trained with the same hyperparameters and 3.3 times
         the parameters, reaches 0.1188.
       </p>
-      </section>
 
-      <section class="deck__slide" data-title="Predicted waveforms and spectra">
       <figure class="figure figure--wide">
         <img src="figures/fig2_surfaces.png" alt="Three columns, one per ISO 8608 roughness class. Top: accumulated height map across the lane with the four wheel paths. Middle: ISO-weighted longitudinal, lateral and vertical acceleration, measured and predicted. Bottom: one-third-octave spectrum of each axis." loading="lazy" width="1900" height="1407">
         <figcaption>
@@ -244,11 +239,6 @@
         </figcaption>
       </figure>
 
-      </section>
-
-        </div>
-      </div>
-
       <h3 class="sub">Closed loop</h3>
       <p class="lede wide">
         An autonomous Hyundai Ioniq 5 with a roof-mounted 128-channel lidar and an
@@ -260,45 +250,22 @@
 
       <!-- ---------------------------------------------------- scenarios --- -->
       <div id="scenario-block">
+        <h3 class="sub">Obstacle scenarios</h3>
         <p class="lede wide">
-          The proving ground and the six obstacle scenarios, seen from above with
-          the vehicle approaching from the left. S1&ndash;S3 place speed bumps under
-          one or both wheel tracks and S6 potholes along one track, so avoidance is
-          available. S4 places bumps of unequal height at the same station, where no
-          candidate is clean. S5 places them between the wheel tracks, where moving
-          is the wrong answer.
+          Six scenarios, seen from above with the vehicle approaching from the left.
+          S1&ndash;S3 place speed bumps under one or both wheel tracks and S6
+          potholes along one track, so avoidance is available. S4 places bumps of
+          unequal height at the same station, where no candidate is clean. S5 places
+          them between the wheel tracks, where moving is the wrong answer.
         </p>
         <p class="path-key">
           <span class="pk"><span class="pk-line pk-line--base"></span>scorer disabled</span>
           <span class="pk"><span class="pk-line pk-line--comf"></span>scorer enabled</span>
         </p>
-
-        <div class="deck" data-deck data-deck-label="Test site and obstacle scenarios">
-          <div class="deck__viewport" id="scenario-deck">
-            <section class="deck__slide" data-title="Proving ground">
-              <figure class="figure figure--mid">
-                <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
-                <figcaption>
-                  <span class="tag tag--a">a</span>
-                  Straight multi-lane section, driven north to south — the bump
-                  scenarios S1&ndash;S5.
-                  <span class="tag tag--b">b</span>
-                  Narrow walled corridor, driven south to north — the pothole
-                  scenario S6.
-                  <span class="credit">Satellite imagery: VWorld, Ministry of Land,
-                  Infrastructure and Transport, Republic of Korea.</span>
-                </figcaption>
-              </figure>
-            </section>
-            <!-- one slide per scenario, appended by app.js -->
-          </div>
-        </div>
+        <ol class="sc-list" id="scenario-list"><!-- filled by app.js --></ol>
       </div>
 
-      <div class="deck" data-deck data-deck-label="Closed-loop results">
-        <div class="deck__viewport">
-
-      <section class="deck__slide" data-title="Paired disabled / enabled runs">
+      <h3 class="sub">Closed loop on the vehicle</h3>
       <p class="lede wide">
         Six pairs, one per scenario at a nominal 15&nbsp;km&thinsp;h<sup>&minus;1</sup>,
         scorer disabled and enabled on the same course. The criterion is
@@ -347,9 +314,7 @@
         average. Scoring five candidates takes 88&ndash;109&nbsp;ms on a Jetson AGX
         Orin, of which the network itself is 7&ndash;9&nbsp;ms.
       </p>
-      </section>
 
-      <section class="deck__slide" data-title="Road grid, measured vibration and candidate scores">
       <figure class="figure figure--wide">
         <img src="figures/fig6_closed_loop.png" alt="Three columns for S1, S4 and S6. Top: accumulated road-height grid in bird's-eye view with the driven paths, scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone. Bottom: the per-candidate predicted a_v at the approach, with the center and the selected candidate highlighted." loading="lazy" width="1900" height="705">
         <figcaption>
@@ -359,10 +324,19 @@
           per-candidate predicted a<sub>v</sub> at the approach.
         </figcaption>
       </figure>
-      </section>
 
-        </div>
-      </div>
+      <figure class="figure figure--mid">
+        <img src="figures/test_site.jpg" alt="Satellite view of the proving ground with the two test sections outlined and the driven waypoint routes marked" loading="lazy" width="1800" height="1174">
+        <figcaption>
+          <span class="tag tag--a">a</span>
+          Straight multi-lane section, driven north to south — the bump scenarios
+          S1&ndash;S5.
+          <span class="tag tag--b">b</span>
+          Narrow walled corridor, driven south to north — the pothole scenario S6.
+          <span class="credit">Satellite imagery: VWorld, Ministry of Land,
+          Infrastructure and Transport, Republic of Korea.</span>
+        </figcaption>
+      </figure>
 
       <h3 class="sub">Limitations</h3>
       <p class="note wide">
@@ -434,6 +408,5 @@
 
 <script src="data/recordings.js"></script>
 <script src="js/app.js"></script>
-<script src="js/deck.js"></script>
 </body>
 </html>
