@@ -571,10 +571,13 @@ figcaption {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2.4rem;
+  /* the clips are five panels in a 2:1 frame, so the row reaches into the side
+     space the measure leaves over, the same pull the wide figures use */
+  margin-inline: calc(-1 * clamp(0px, (100vw - var(--wrap)) / 2, 90px));
 }
 .card {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
   gap: 1.6rem;
   align-items: center;
 }
@@ -586,9 +589,9 @@ figcaption {
 }
 .card video {
   display: block; width: 100%; max-width: 100%;
-  /* the clips are three panels stacked into a 1432x1092 frame, so a 16/9 box
-     with object-fit:cover would crop the cabin panel away */
-  aspect-ratio: 1432 / 1092;
+  /* five panels in a 1872x912 frame: a 16/9 box with object-fit:cover would
+     crop the chart column away */
+  aspect-ratio: 1872 / 912;
   background: #0c0d0f;
   object-fit: contain;
 }
@@ -673,6 +676,7 @@ figcaption {
 @media (max-width: 760px) {
   /* no room for a side column: the diagram drops under its clip */
   .card { grid-template-columns: 1fr; gap: 1rem; }
+  .grid { margin-inline: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
