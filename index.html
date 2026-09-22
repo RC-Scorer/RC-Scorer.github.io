@@ -55,19 +55,18 @@
 <section class="band teaser">
   <div class="wrap">
     <figure class="figure figure--wide">
-      <video class="teaser-video" controls autoplay loop muted playsinline
-             preload="metadata" poster="posters/overview.jpg"
-             width="1440" height="810"
-             aria-label="A one-minute walk-through: planning metrics score longitudinal and lateral motion but not the vertical vibration the road induces; RC-Scorer reads four-wheel road profiles, a candidate trajectory and the vehicle state and predicts three-axis ISO 2631-1 weighted acceleration; and the on-vehicle pipeline in which lidar, GNSS/INS and wheel speed build a local elevation map whose wheel-path profiles feed RC-Scorer, whose comfort cost joins the planner's other terms in candidate selection">
+      <video class="teaser-video" controls playsinline preload="metadata"
+             poster="posters/overview.jpg" width="1440" height="810"
+             aria-label="A three-minute overview: why planning metrics miss the vertical vibration the road induces; what RC-Scorer predicts from four-wheel road profiles and a candidate trajectory; the on-vehicle pipeline and the model architecture in detail; and the six obstacle scenarios driven with the scorer disabled and enabled">
         <source src="videos/rc_scorer_overview.mp4" type="video/mp4">
       </video>
       <figcaption>
-        Planning metrics score longitudinal and lateral motion, so the vertical
-        vibration the road induces goes unscored. RC-Scorer predicts the
-        three-axis ISO 2631-1 weighted acceleration a candidate trajectory would
-        produce, from the road profile under its four wheel paths and no vehicle
-        dynamics model, and that cost joins the planner's centerline, consistency
-        and curvature terms in candidate selection.
+        Three minutes end to end: the vertical vibration the road induces goes
+        unscored by planning metrics; RC-Scorer predicts the three-axis
+        ISO 2631-1 weighted acceleration a candidate trajectory would produce,
+        from the road profile under its four wheel paths and no vehicle dynamics
+        model; and the six obstacle scenarios are driven with the scorer
+        disabled and enabled on the same course. Sound on for the walk-through.
       </figcaption>
     </figure>
   </div>
