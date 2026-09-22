@@ -9,7 +9,7 @@
   var byCode = {};
   scenarios.forEach(function (s) { byCode[s.code] = s; });
 
-  var RUN_LABEL = { baseline: "baseline", comfort: "comfort" };
+  var RUN_LABEL = { baseline: "RC-Scorer off", comfort: "RC-Scorer on" };
 
   function mmss(sec) {
     var s = Math.round(sec || 0);
@@ -133,8 +133,8 @@
   var nBase = recs.filter(function (r) { return r.run === "baseline"; }).length;
   var nComf = recs.filter(function (r) { return r.run === "comfort"; }).length;
   var runItems = [{ value: "all", label: "Both runs", n: recs.length }];
-  if (nBase) runItems.push({ value: "baseline", label: "Baseline", n: nBase });
-  if (nComf) runItems.push({ value: "comfort", label: "Comfort", n: nComf });
+  if (nBase) runItems.push({ value: "baseline", label: "RC-Scorer off", n: nBase });
+  if (nComf) runItems.push({ value: "comfort", label: "RC-Scorer on", n: nComf });
   if (runItems.length > 1) {
     buildChips(document.getElementById("filter-run"), runItems, "run");
   }
@@ -145,7 +145,9 @@
   var resultLine = document.getElementById("result-line");
 
   function card(r) {
-    var li = el("li", "card");
+    /* the run drives the card's accent: the disabled run is edged red, the
+       enabled one blue, matching the bar burnt into the clip itself */
+    var li = el("li", "card" + (r.run ? " card--" + r.run : ""));
     var sc = r.scenario ? byCode[r.scenario] : null;
 
     /* One clip per row, full width, with the scenario's plan view beside it:

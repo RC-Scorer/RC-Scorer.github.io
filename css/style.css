@@ -22,6 +22,8 @@
 
   --measure: 41rem;   /* fixed unit: ch differs between the display and body faces */
   --wrap: 1080px;
+  --run-off: #c62828;
+  --run-on: #1565c0;
   --pad: clamp(1rem, 4vw, 2.25rem);
   --r: 4px;
 }
@@ -589,9 +591,9 @@ figcaption {
 }
 .card video {
   display: block; width: 100%; max-width: 100%;
-  /* five panels in a 1872x912 frame: a 16/9 box with object-fit:cover would
-     crop the chart column away */
-  aspect-ratio: 1872 / 912;
+  /* five panels under the run's label bar, 1872x968: a 16/9 box with
+     object-fit:cover would crop the chart column away */
+  aspect-ratio: 1872 / 968;
   background: #0c0d0f;
   object-fit: contain;
 }
@@ -624,8 +626,12 @@ figcaption {
   border: 1px solid var(--line); color: var(--ink-2);
 }
 .badge--sc { border-color: var(--accent); color: var(--accent); }
-.badge--comfort { background: var(--accent); border-color: var(--accent); color: #fff; }
-.badge--baseline { border-color: var(--ink-3); color: var(--ink-2); }
+/* the two runs read as a pair everywhere: red for the run without RC-Scorer,
+   blue for the run with it, the same colours the clips carry */
+.badge--comfort  { background: var(--run-on);  border-color: var(--run-on);  color: #fff; }
+.badge--baseline { background: var(--run-off); border-color: var(--run-off); color: #fff; }
+.card--comfort  .card-clip { border-color: var(--run-on); }
+.card--baseline .card-clip { border-color: var(--run-off); }
 .badge--todo { border-style: dashed; color: var(--ink-3); }
 .card-note { margin: 0; color: var(--ink-2); font-size: .87rem; line-height: 1.5; }
 
