@@ -46,18 +46,43 @@ const SCENARIOS = [
 ];
 
 const RECORDINGS = [
-  // 3분할 합성본. 좌상 전방 카메라 / 좌하 실내 / 우측 RViz, 세 소스를 같은 시점에
-  // 맞춰 자른 것입니다. 실내 얼굴과 본넷 마크는 마스킹되어 있습니다.
+  // 5분할 합성본. 왼쪽 위 전방 / 왼쪽 아래 실내 / 가운데 RViz /
+  // 오른쪽 위 후보별 예측 승차감 비용 a_v / 오른쪽 아래 총비용 J.
+  // 시나리오마다 comfort(스코어러 켬) 와 baseline(끔) 두 편이 붙습니다.
   { id: "scenario1", clock: "11:03", seconds: 30, scenario: "S1", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario1_baseline", clock: "11:05", seconds: 25, scenario: "S1", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled: the same course driven without the comfort cost.",
+    hidden: false },
   { id: "scenario2", clock: "12:28", seconds: 30, scenario: "S2", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario2_baseline", clock: "12:30", seconds: 29, scenario: "S2", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled: the same course driven without the comfort cost.",
+    hidden: false },
   { id: "scenario3", clock: "13:58", seconds: 29, scenario: "S3", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario3_baseline", clock: "13:59", seconds: 25, scenario: "S3", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled: the same course driven without the comfort cost.",
+    hidden: false },
   { id: "scenario4", clock: "14:08", seconds: 29, scenario: "S4", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario4_baseline", clock: "14:10", seconds: 26, scenario: "S4", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled: the same course driven without the comfort cost.",
+    hidden: false },
   { id: "scenario5", clock: "14:15", seconds: 29, scenario: "S5", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario5_baseline", clock: "14:18", seconds: 32, scenario: "S5", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled: the same course driven without the comfort cost.",
+    hidden: false },
   { id: "scenario6", clock: "14:24", seconds: 15, scenario: "S6", run: "comfort",
     speed: 15, side: "", note: "", hidden: false },
+  { id: "scenario6_baseline", clock: "14:29", seconds: 17, scenario: "S6", run: "baseline",
+    speed: 15, side: "",
+    note: "Scorer disabled. The cabin camera was not recording on this run, so the forward view sits alone in the left column.",
+    hidden: false },
 ];
