@@ -325,12 +325,43 @@
       </p>
 
       <figure class="figure figure--wide">
-        <img src="figures/fig6_closed_loop.png" alt="Three columns for S1, S4 and S6. Top: accumulated road-height grid in bird's-eye view with the driven paths, scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone. Bottom: the per-candidate predicted a_v at the approach, with the center and the selected candidate highlighted." loading="lazy" width="1900" height="705">
+        <div class="clgrid">
+          <figure class="clfig">
+            <img src="figures/closed_loop_s1.png" width="900" height="958" loading="lazy"
+                 alt="S1, bumps under one wheel track. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S1</span> bumps under one wheel track</figcaption>
+          </figure>
+          <figure class="clfig">
+            <img src="figures/closed_loop_s2.png" width="900" height="958" loading="lazy"
+                 alt="S2, two bumps left, one right. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S2</span> two bumps left, one right</figcaption>
+          </figure>
+          <figure class="clfig">
+            <img src="figures/closed_loop_s3.png" width="900" height="958" loading="lazy"
+                 alt="S3, one bump left, two right. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S3</span> one bump left, two right</figcaption>
+          </figure>
+          <figure class="clfig">
+            <img src="figures/closed_loop_s4.png" width="900" height="958" loading="lazy"
+                 alt="S4, unequal heights at one station. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S4</span> unequal heights at one station</figcaption>
+          </figure>
+          <figure class="clfig">
+            <img src="figures/closed_loop_s5.png" width="900" height="958" loading="lazy"
+                 alt="S5, low bumps between the wheel tracks. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S5</span> low bumps between the wheel tracks</figcaption>
+          </figure>
+          <figure class="clfig">
+            <img src="figures/closed_loop_s6.png" width="900" height="958" loading="lazy"
+                 alt="S6, potholes along one wheel track. Top: accumulated road-height grid with the paths driven with the scorer disabled and enabled. Middle: measured vertical acceleration over the obstacle zone for both runs. Bottom: the per-candidate predicted a_v at the approach, with the lane-centre and the selected candidate marked.">
+            <figcaption><span class="clcode">S6</span> potholes along one wheel track</figcaption>
+          </figure>
+        </div>
         <figcaption>
-          Closed-loop behaviour at 15&nbsp;km&thinsp;h<sup>&minus;1</sup>. Each panel
-          shows the accumulated road-height grid with both driven trajectories, the
-          measured vertical acceleration over the obstacle zone, and the
-          per-candidate predicted a<sub>v</sub> at the approach.
+          Closed-loop behaviour at 15&nbsp;km&thinsp;h<sup>&minus;1</sup>, one column
+          per scenario. Each shows the accumulated road-height grid with both driven
+          trajectories, the measured vertical acceleration over the obstacle zone,
+          and the per-candidate predicted a<sub>v</sub> at the approach.
         </figcaption>
       </figure>
 
